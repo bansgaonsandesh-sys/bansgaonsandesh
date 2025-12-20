@@ -28,28 +28,65 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
     useEffect(() => {
         if (ads.length === 0) return
 
-        // Check if popup was already shown in this session
-        const popupShown = sessionStorage.getItem('popup_shown')
-        if (popupShown) {
-            console.log('⚠️ [POPUP] Already shown in this session')
-            return
-        }
+        const fiveMinutes = 5 * 60 * 1000 // 5 minutes in milliseconds
+        let initialTimer: NodeJS.Timeout
+        let recurringTimer: NodeJS.Timeout
 
-        // Select a random ad
-        const randomIndex = Math.floor(Math.random() * ads.length)
-        const randomAd = ads[randomIndex]
-        setSelectedAd(randomAd)
-
-        console.log('🎯 [POPUP] Selected random ad:', randomAd.title)
-
-        // Show popup after 5 seconds
-        const timer = setTimeout(() => {
+        const showRandomPopup = () => {
+            // Select a random ad
+            const randomIndex = Math.floor(Math.random() * ads.length)
+            const randomAd = ads[randomIndex]
+            setSelectedAd(randomAd)
+            
+            console.log('🎯 [POPUP] Selected random ad:', randomAd.title)
             console.log('✅ [POPUP] Showing popup')
             setVisible(true)
-            sessionStorage.setItem('popup_shown', 'true')
-        }, 5000)
+            setHasTrackedImpression(false) // Reset for new ad
+            sessionStorage.setItem('popup_last_shown', Date.now().toString())
+        }
 
-        return () => clearTimeout(timer)
+        // Check if this is first visit (no last shown time)
+        const lastShownTime = sessionStorage.getItem('popup_last_shown')
+        
+        if (!lastShownTime) {
+            // First visit - show popup after 5 seconds
+            console.log('🎯 [POPUP] First visit - will show after 5 seconds')
+            initialTimer = setTimeout(() => {
+                showRandomPopup()
+                // Then continue showing every 5 minutes
+                recurringTimer = setInterval(showRandomPopup, fiveMinutes)
+            }, 5000)
+        } else {
+            // Not first visit - check time since last shown
+            const now = Date.now()
+            const timeSinceLastShown = now - parseInt(lastShownTime)
+            
+            if (timeSinceLastShown < fiveMinutes) {
+                const remainingTime = fiveMinutes - timeSinceLastShown
+                const remainingMinutes = Math.ceil(remainingTime / 1000 / 60)
+                console.log(`⚠️ [POPUP] Shown recently. Will show again in ${remainingMinutes} minutes`)
+                
+                // Show next popup after remaining time
+                initialTimer = setTimeout(() => {
+                    showRandomPopup()
+                    // Then continue showing every 5 minutes
+                    recurringTimer = setInterval(showRandomPopup, fiveMinutes)
+                }, remainingTime)
+            } else {
+                // More than 5 minutes passed, show after 5 seconds
+                console.log('🎯 [POPUP] More than 5 minutes passed - will show after 5 seconds')
+                initialTimer = setTimeout(() => {
+                    showRandomPopup()
+                    // Then continue showing every 5 minutes
+                    recurringTimer = setInterval(showRandomPopup, fiveMinutes)
+                }, 5000)
+            }
+        }
+
+        return () => {
+            clearTimeout(initialTimer)
+            clearInterval(recurringTimer)
+        }
     }, [ads])
 
     useEffect(() => {
@@ -93,6 +130,7 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
             closeIcon={<CloseOutlined />}
             width={600}
             centered
+            className="popup-ad-modal"
         >
             <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -112,7 +150,7 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                         <p className="text-gray-600 mb-6">{selectedAd.description}</p>
                     )}
 
-                    <div className="flex flex-wrap gap-3 justify-center">
+                    <div className="flex flex-wrap gap-3 justify-center mb-4">
                         {selectedAd.contact_phone && (
                             <Button
                                 type="primary"
@@ -152,6 +190,19 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                                 Learn More
                             </Button>
                         )}
+                    </div>
+
+                    {/* Bottom Close Button for Mobile */}
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                        <Button
+                            type="default"
+                            size="large"
+                            icon={<CloseOutlined />}
+                            onClick={handleClose}
+                            className="w-full md:w-auto"
+                        >
+                            Close
+                        </Button>
                     </div>
                 </div>
             </motion.div>

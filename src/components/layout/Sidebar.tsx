@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import {
     HomeOutlined,
@@ -9,9 +9,11 @@ import {
     WalletOutlined,
     UserOutlined,
     LogoutOutlined,
-    LoginOutlined
+    LoginOutlined,
+    EnvironmentOutlined,
+    SearchOutlined
 } from '@ant-design/icons'
-import { message, Modal } from 'antd'
+import { message, Modal, Dropdown, Input } from 'antd'
 import { motion } from 'framer-motion'
 import { useApp } from '../../lib/providers'
 import { supabaseClient } from '../../lib/supabase-client'
@@ -19,7 +21,22 @@ import { supabaseClient } from '../../lib/supabase-client'
 export default function Sidebar() {
     const pathname = usePathname()
     const router = useRouter()
-    const { isGuest } = useApp()
+    const { isGuest, selectedCity, userCity, setSelectedCity } = useApp()
+    const [citiesFromDB, setCitiesFromDB] = useState<Array<{ id: string; name: string }>>([])
+    const [citySearchText, setCitySearchText] = useState('')
+
+    // Fetch cities from database
+    useEffect(() => {
+        const fetchCities = async () => {
+            const { data: cityData } = await supabaseClient
+                .from('cities')
+                .select('id, name')
+                .eq('is_active', true)
+                .order('name')
+            if (cityData) setCitiesFromDB(cityData)
+        }
+        fetchCities()
+    }, [])
 
     const handleAuthAction = (action: string) => {
         const returnPath = pathname !== '/auth/login' && pathname !== '/auth/register' ? pathname : '/'
@@ -70,12 +87,80 @@ export default function Sidebar() {
         { key: '/profile', icon: UserOutlined, label: 'Profile' },
     ]
 
+    // Filter cities based on search
+    const cities = citiesFromDB.map(c => c.name)
+    const filteredCities = cities.filter(city =>
+        city.toLowerCase().includes(citySearchText.toLowerCase())
+    )
+
+    const cityDropdownRender = () => (
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-64">
+            <div className="p-2 border-b border-gray-200 sticky top-0 bg-white z-10">
+                <Input
+                    placeholder="Search cities..."
+                    prefix={<SearchOutlined className="text-gray-400" />}
+                    value={citySearchText}
+                    onChange={(e) => setCitySearchText(e.target.value)}
+                    className="w-full"
+                    autoFocus
+                />
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+                {filteredCities.length > 0 ? (
+                    filteredCities.map(city => (
+                        <div
+                            key={city}
+                            onClick={() => {
+                                setSelectedCity(city)
+                                setCitySearchText('')
+                            }}
+                            className={`px-4 py-2.5 cursor-pointer transition-colors ${selectedCity === city
+                                    ? 'bg-blue-50 text-blue-600 font-medium'
+                                    : 'hover:bg-gray-50 text-gray-700'
+                                }`}
+                        >
+                            {city}
+                        </div>
+                    ))
+                ) : (
+                    <div className="px-4 py-6 text-center text-gray-500">
+                        No cities found
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+
     return (
         <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-gray-100 bg-white/80 backdrop-blur-xl px-4 py-6">
             <div className="mb-8 px-4">
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Next Update
                 </h1>
+            </div>
+
+            {/* City Selector */}
+            <div className="mb-4 px-2">
+                <Dropdown
+                    dropdownRender={cityDropdownRender}
+                    trigger={['click']}
+                    placement="bottomLeft"
+                    onOpenChange={(open) => {
+                        if (!open) setCitySearchText('')
+                    }}
+                >
+                    <div className="flex items-center cursor-pointer hover:bg-gray-50 rounded-xl px-3 py-2.5 transition-all duration-200 border border-gray-200">
+                        <EnvironmentOutlined className="text-blue-600 mr-2 text-lg" />
+                        <div className="flex-1 min-w-0">
+                            <span className="font-medium text-gray-800 text-sm block truncate">
+                                {selectedCity || 'Select City'}
+                            </span>
+                            {userCity && userCity !== selectedCity && (
+                                <span className="text-xs text-gray-500">Home: {userCity}</span>
+                            )}
+                        </div>
+                    </div>
+                </Dropdown>
             </div>
 
             <nav className="flex-1 space-y-2">

@@ -14,9 +14,10 @@ import {
   EnvironmentOutlined,
   BellOutlined,
   LogoutOutlined,
-  RocketOutlined
+  RocketOutlined,
+  SearchOutlined
 } from '@ant-design/icons'
-import { Badge, Avatar, Dropdown, Space, message } from 'antd'
+import { Badge, Avatar, Dropdown, Space, message, Input } from 'antd'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useApp } from '../../lib/providers'
 import { formatNumber } from '../../lib/utils'
@@ -46,6 +47,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [showCitySelector, setShowCitySelector] = useState(false)
   const [citiesFromDB, setCitiesFromDB] = useState<Array<{ id: string; name: string }>>([])
   const [popups, setPopups] = useState<any[]>([])
+  const [citySearchText, setCitySearchText] = useState('')
 
   // Fetch cities and popups
   useEffect(() => {
@@ -90,7 +92,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { key: '/', icon: HomeOutlined, label: 'Home' },
     { key: '/explore', icon: CompassOutlined, label: 'Explore' },
     { key: '/create', icon: PlusCircleOutlined, label: 'Create' },
-    { key: '/ads/create', icon: RocketOutlined, label: 'Ads' },
     { key: '/wallet', icon: WalletOutlined, label: 'Wallet' },
     { key: '/profile', icon: UserOutlined, label: 'Profile' },
   ]
@@ -141,6 +142,49 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   // Use only database cities (no hardcoded fallback)
   const cities = citiesFromDB.map(c => c.name)
+
+  const filteredCities = cities.filter(city =>
+    city.toLowerCase().includes(citySearchText.toLowerCase())
+  )
+
+  const cityDropdownRender = () => (
+    <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+      <div className="p-2 border-b border-gray-200 sticky top-0 bg-white z-10">
+        <Input
+          placeholder="Search cities..."
+          prefix={<SearchOutlined className="text-gray-400" />}
+          value={citySearchText}
+          onChange={(e) => setCitySearchText(e.target.value)}
+          className="w-full"
+          autoFocus
+        />
+      </div>
+      <div className="max-h-64 overflow-y-auto">
+        {filteredCities.length > 0 ? (
+          filteredCities.map(city => (
+            <div
+              key={city}
+              onClick={() => {
+                setSelectedCity(city)
+                setCitySearchText('')
+              }}
+              className={`px-4 py-2.5 cursor-pointer transition-colors ${
+                selectedCity === city
+                  ? 'bg-blue-50 text-blue-600 font-medium'
+                  : 'hover:bg-gray-50 text-gray-700'
+              }`}
+            >
+              {city}
+            </div>
+          ))
+        ) : (
+          <div className="px-4 py-6 text-center text-gray-500">
+            No cities found
+          </div>
+        )}
+      </div>
+    </div>
+  )
 
   const cityItems = cities.map(city => ({
     key: city,
@@ -221,9 +265,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <div className="flex items-center justify-between">
             {/* City Selector */}
             <Dropdown
-              menu={{ items: cityItems }}
+              dropdownRender={cityDropdownRender}
               trigger={['click']}
               placement="bottomLeft"
+              onOpenChange={(open) => {
+                if (!open) setCitySearchText('')
+              }}
             >
               <div className="flex items-center cursor-pointer hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors">
                 <EnvironmentOutlined className="text-primary mr-2" />
@@ -335,10 +382,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
         }
       />
 
-      {/* Admin Popup System */}
+      {/* Admin Popup System - Show only 1 popup */}
       {popups.length > 0 && (
         <AdminPopup
-          ads={popups}
+          ads={[popups[0]]}
           onImpression={handlePopupImpression}
           onClick={handlePopupClick}
         />

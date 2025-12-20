@@ -12,7 +12,6 @@ import InfiniteScrollList from '../components/shared/InfiniteScrollList'
 import PullToRefresh from '../components/shared/PullToRefresh'
 import SponsoredPostCard from '../components/ads/SponsoredPostCard'
 import AdminBanner from '../components/ads/AdminBanner'
-import AdminPopup from '../components/ads/AdminPopup'
 
 interface Post {
   id: string
@@ -47,17 +46,14 @@ export default function HomePage() {
   const queryClient = useQueryClient()
   const [ads, setAds] = React.useState<any[]>([])
   const [bannerAds, setBannerAds] = React.useState<any[]>([])
-  const [popupAds, setPopupAds] = React.useState<any[]>([])
 
   // Fetch Ads
   useEffect(() => {
-    import('./actions/adActions').then(async ({ fetchActiveUserAds, fetchActiveBanners, fetchActivePopups }) => {
+    import('./actions/adActions').then(async ({ fetchActiveUserAds, fetchActiveBanners }) => {
       const userAds = await fetchActiveUserAds()
       const banners = await fetchActiveBanners()
-      const popups = await fetchActivePopups()
       setAds(userAds)
       setBannerAds(banners)
-      setPopupAds(popups)
     })
   }, [])
 
@@ -118,16 +114,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Admin Popup - Pass array of popups */}
-      {popupAds.length > 0 && <AdminPopup ads={popupAds} />}
-
       <div className="container mx-auto md:py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
           {/* Main Feed Column */}
           <div className="lg:col-span-8 xl:col-span-7 space-y-4">
-            {/* Admin Banner - Show first banner */}
-            {bannerAds.length > 0 && <AdminBanner ad={bannerAds[0]} />}
+            {/* Admin Banner Carousel - Show all banners */}
+            {bannerAds.length > 0 && <AdminBanner ads={bannerAds} />}
 
             <PullToRefresh onRefresh={handleRefresh}>
               <InfiniteScrollList

@@ -99,10 +99,10 @@ export function PostList({
               onClick={(id) => handleAdClick(id, 'post')}
             />
           )}
-          {/* Inject Admin Banner every 8 posts (offset) */}
+          {/* Inject Admin Banner Carousel every 8 posts */}
           {(index + 1) % 8 === 0 && adminBanners.length > 0 && (
             <AdminBanner
-              ad={adminBanners[(Math.floor((index + 1) / 8) - 1) % adminBanners.length]}
+              ads={adminBanners}
               onImpression={(id) => handleAdImpression(id, 'banner')}
               onClick={(id) => handleAdClick(id, 'banner')}
             />

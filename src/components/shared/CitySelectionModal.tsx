@@ -165,6 +165,10 @@ export default function CitySelectionModal({
                   (option?.value as string)?.toLowerCase().includes(input.toLowerCase())
                 }
                 notFoundContent={fetchingCities ? "Loading cities..." : "No cities found"}
+                listHeight={256}
+                dropdownStyle={{ maxHeight: '256px' }}
+                virtual
+                optionFilterProp="value"
               />
             </div>
 
