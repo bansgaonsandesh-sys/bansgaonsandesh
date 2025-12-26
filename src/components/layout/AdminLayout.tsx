@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { Layout, Menu, Avatar, Dropdown, Button, Typography, Space, Badge, message } from 'antd'
 import { siteConfig as SITE_CONFIG } from '@/config/site'
