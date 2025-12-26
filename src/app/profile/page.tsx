@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { Avatar, Button, Typography, Space, Tabs, Card, Tag, Modal, Upload, Form, Input, Select, App } from 'antd'
+import { siteConfig as SITE_CONFIG } from '@/config/site'
 import {
   UserOutlined,
   EditOutlined,
@@ -440,7 +441,7 @@ export default function ProfilePage() {
   const shareProfile = async () => {
     try {
       const shareData = {
-        title: `Join ${user?.name} on Next Update!`,
+        title: `Join ${user?.name} on ${SITE_CONFIG.name}!`,
         text: `Use my referral code ${user?.referral_code} and get 100 points!`,
         url: `https://app.nextupdate.in/profile/${user?.id}`
       }

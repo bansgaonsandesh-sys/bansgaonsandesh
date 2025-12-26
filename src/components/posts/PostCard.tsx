@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { App, Avatar as AntAvatar, Button, Typography, Space, Carousel, Modal, Input, Spin, message } from 'antd'
+import { siteConfig as SITE_CONFIG } from '@/config/site'
 import {
   HeartOutlined,
   HeartFilled,
@@ -76,6 +78,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, currentUserId, isGuest = false, onUpdate, onDelete, onLoginRequired }: PostCardProps) {
+  const router = useRouter()
   const [isLiked, setIsLiked] = useState(post.is_liked || false)
   const [likesCount, setLikesCount] = useState(post.likes_count)
   const [commentsCount, setCommentsCount] = useState(post.comments_count)
@@ -301,6 +304,10 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
 
   const isOwner = post.user_id === currentUserId
 
+  const handlePostClick = () => {
+    router.push(`/post/${post.id}`)
+  }
+
   const handleComment = async () => {
     // Check if guest user
     if (isGuest || !currentUserId) {
@@ -380,9 +387,9 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
 
       // Use mobile bridge for native sharing - we're always in WebView
       const shareData = {
-        title: `${post.profiles.name}'s post on Next Update`,
+        title: `${post.profiles.name}'s post on ${SITE_CONFIG.name}`,
         text: `${shortContent}\n\n📰 Read full news & connect with your community!`,
-        url: `https://app.nextupdate.in/post/${post.id}`,
+        url: `${SITE_CONFIG.url}/post/${post.id}`,
       }
 
       if (navigator.share) {
@@ -475,7 +482,13 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
 
         {post.title && (
           <div className="px-4 pb-1">
-            <Text strong className="text-base text-gray-900">{post.title}</Text>
+            <Text 
+              strong 
+              className="text-base text-gray-900 cursor-pointer hover:text-blue-600 transition-colors"
+              onClick={handlePostClick}
+            >
+              {post.title}
+            </Text>
           </div>
         )}
 
@@ -539,7 +552,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
         {post.media_urls.length > 0 && (
           <div className="relative">
             {post.media_urls.length === 1 ? (
-              <div className="relative aspect-square">
+              <div className="relative aspect-square cursor-pointer" onClick={handlePostClick}>
                 {post.media_type === 'image' ? (
                   <img
                     src={getProxiedImageUrl(post.media_urls[0]) || post.media_urls[0]}
@@ -561,7 +574,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
                 infinite={false}
               >
                 {post.media_urls.map((url, index) => (
-                  <div key={index} className="relative aspect-square">
+                  <div key={index} className="relative aspect-square cursor-pointer" onClick={handlePostClick}>
                     {post.media_type === 'image' ? (
                       <img
                         src={getProxiedImageUrl(url) || url}
@@ -573,6 +586,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
                         src={getProxiedImageUrl(url) || url}
                         controls
                         className="w-full h-full object-cover"
+                        onClick={(e) => e.stopPropagation()}
                       />
                     )}
                   </div>

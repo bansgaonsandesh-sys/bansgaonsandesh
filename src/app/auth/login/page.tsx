@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Form, Input, Button, Typography, Space, Alert, Divider } from 'antd'
-import { UserOutlined, LockOutlined, MailOutlined, GoogleOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { supabaseClient } from '../../../lib/supabase-client'
+import { isAdminEmail } from '@/config/site'
 
 const { Title, Text } = Typography
 
@@ -31,51 +32,6 @@ export default function LoginPage() {
     }
   }, [searchParams])
 
-  const handleGoogleLogin = async () => {
-    console.log('[Login] 🚀 Google login clicked')
-    setLoading(true)
-    setError(null)
-
-    try {
-      console.log('[Login] Calling signInWithOAuth...')
-
-      const redirectUrl = `${window.location.origin}/auth/callback`
-
-      console.log('[Login] Redirect URL:', redirectUrl)
-
-      const { data, error } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      })
-
-      console.log('[Login] OAuth response:', { hasData: !!data, hasError: !!error })
-
-      if (error) {
-        console.error('[Login] OAuth error:', error)
-        setError(error.message)
-        setLoading(false)
-        return
-      }
-
-      if (data?.url) {
-        console.log('[Login] OAuth URL received, length:', data.url.length)
-        console.log('[Login] Browser redirect')
-        window.location.href = data.url
-      }
-      // Don't set loading to false here as the page will redirect
-    } catch (err: any) {
-      console.error('[Login] Exception during OAuth:', err)
-      setError(err.message || 'An error occurred during Google sign-in')
-      setLoading(false)
-    }
-  }
-
   const handleLogin = async (values: LoginFormData) => {
     setLoading(true)
     setError(null)
@@ -91,11 +47,8 @@ export default function LoginPage() {
 
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
-          // Check if this is a new user who needs to sign up first
-          setError('No account found with this email. Please sign up first.')
-          setTimeout(() => {
-            router.push(`/auth/register?email=${encodeURIComponent(email)}`)
-          }, 2000)
+          // No account found with this email
+          setError('Invalid email or password. Please contact admin for account access.')
         } else if (error.message.includes('Email not confirmed')) {
           setError('Please verify your email first.')
           // Redirect to verification page after 2 seconds
@@ -144,7 +97,7 @@ export default function LoginPage() {
         // Verify session is still valid before redirecting
         const { data: { session } } = await supabaseClient.auth.getSession()
         if (session) {
-          if (email === 'admin@nextupdate.in' || email === 'support@nextupdate.in') {
+          if (isAdminEmail(email)) {
             router.push('/admin')
           } else {
             router.push('/')
@@ -268,32 +221,6 @@ export default function LoginPage() {
               </Button>
             </Form.Item>
           </Form>
-
-          <Divider>
-            <Text type="secondary">or continue with</Text>
-          </Divider>
-
-          {/* Google Sign In Button */}
-          <Button
-            icon={<GoogleOutlined />}
-            onClick={handleGoogleLogin}
-            loading={loading}
-            disabled={loading}
-            className="w-full h-12 rounded-xl mb-6 font-semibold flex items-center justify-center"
-            size="large"
-          >
-            Continue with Google
-          </Button>
-
-          {/* Sign Up Link */}
-          <div className="text-center">
-            <Text type="secondary">
-              Don&apos;t have an account?{' '}
-              <Link href="/auth/register" className="text-primary font-semibold hover:underline">
-                Sign up now
-              </Link>
-            </Text>
-          </div>
 
           {/* Forgot Password */}
           <div className="text-center mt-4">

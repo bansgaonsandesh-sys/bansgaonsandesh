@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import { siteConfig as SITE_CONFIG } from '@/config/site'
 import {
     HomeOutlined,
     CompassOutlined,
@@ -39,9 +40,8 @@ export default function Sidebar() {
     }, [])
 
     const handleAuthAction = (action: string) => {
-        const returnPath = pathname !== '/auth/login' && pathname !== '/auth/register' ? pathname : '/'
-        const authPath = action === 'register' ? '/auth/register' : '/auth/login'
-        router.push(`${authPath}?returnTo=${encodeURIComponent(returnPath)}`)
+        const returnPath = pathname !== '/auth/login' ? pathname : '/'
+        router.push(`/auth/login?returnTo=${encodeURIComponent(returnPath)}`)
     }
 
     const handleLogout = async () => {
@@ -73,12 +73,6 @@ export default function Sidebar() {
             label: 'Login',
             onClick: () => handleAuthAction('login')
         },
-        {
-            key: 'register',
-            icon: PlusCircleOutlined,
-            label: 'Sign Up',
-            onClick: () => handleAuthAction('register')
-        },
     ] : [
         { key: '/', icon: HomeOutlined, label: 'Home' },
         { key: '/explore', icon: CompassOutlined, label: 'Explore' },
@@ -93,7 +87,7 @@ export default function Sidebar() {
         city.toLowerCase().includes(citySearchText.toLowerCase())
     )
 
-    const cityDropdownRender = () => (
+    const cityPopupRender = () => (
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-64">
             <div className="p-2 border-b border-gray-200 sticky top-0 bg-white z-10">
                 <Input
@@ -135,14 +129,14 @@ export default function Sidebar() {
         <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-gray-100 bg-white/80 backdrop-blur-xl px-4 py-6">
             <div className="mb-8 px-4">
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Next Update
+                    {SITE_CONFIG.name}
                 </h1>
             </div>
 
             {/* City Selector */}
             <div className="mb-4 px-2">
                 <Dropdown
-                    dropdownRender={cityDropdownRender}
+                    popupRender={cityPopupRender}
                     trigger={['click']}
                     placement="bottomLeft"
                     onOpenChange={(open) => {

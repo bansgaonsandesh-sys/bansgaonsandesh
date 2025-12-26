@@ -18,7 +18,8 @@ import {
   message,
   Popconfirm,
   Divider,
-  Badge
+  Badge,
+  Tabs
 } from 'antd'
 import { 
   EditOutlined, 
@@ -27,12 +28,15 @@ import {
   SearchOutlined,
   UserOutlined,
   CrownOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  UserAddOutlined
 } from '@ant-design/icons'
 import { motion } from 'framer-motion'
 import AdminLayout from '../../../components/layout/AdminLayout'
 import { supabaseClient } from '../../../lib/supabase-client'
 import { isAdmin } from '../../../lib/utils'
+import { adminCreateUser, getAdminCreatedUsers, toggleUserStatus } from '@/app/actions/userActions'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -62,13 +66,17 @@ interface City {
 
 export default function UsersManagementPage() {
   const [users, setUsers] = useState<User[]>([])
+  const [adminUsers, setAdminUsers] = useState<any[]>([])
   const [cities, setCities] = useState<City[]>([])
   const [loading, setLoading] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
+  const [createUserModalVisible, setCreateUserModalVisible] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [searchText, setSearchText] = useState('')
+  const [activeTab, setActiveTab] = useState('1')
   const [form] = Form.useForm()
+  const [createUserForm] = Form.useForm()
   const router = useRouter()
 
   useEffect(() => {
@@ -99,7 +107,7 @@ export default function UsersManagementPage() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      // Fetch users with city information
+      // Fetch registered users with city information
       const { data: usersData, error: usersError } = await supabaseClient
         .from('profiles')
         .select(`
@@ -112,6 +120,12 @@ export default function UsersManagementPage() {
         .order('created_at', { ascending: false })
 
       if (usersError) throw usersError
+
+      // Fetch admin-created users
+      const adminUsersResult = await getAdminCreatedUsers()
+      if (adminUsersResult.success) {
+        setAdminUsers(adminUsersResult.data || [])
+      }
 
       // Fetch all cities for the form
       const { data: citiesData, error: citiesError } = await supabaseClient
@@ -194,6 +208,35 @@ export default function UsersManagementPage() {
     } catch (error) {
       console.error('Error deleting user:', error)
       message.error('Failed to delete user')
+    }
+  }
+
+  const handleCreateNewUser = async (values: any) => {
+    setLoading(true)
+    const result = await adminCreateUser(values)
+    
+    if (result.success) {
+      message.success('User created successfully! Invitation email sent.')
+      if (result.warning) {
+        message.warning(result.warning)
+      }
+      createUserForm.resetFields()
+      setCreateUserModalVisible(false)
+      fetchData()
+    } else {
+      message.error(result.error || 'Failed to create user')
+    }
+    setLoading(false)
+  }
+
+  const handleToggleUserStatus = async (userId: string, currentStatus: boolean) => {
+    const result = await toggleUserStatus(userId, !currentStatus)
+    
+    if (result.success) {
+      message.success(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully`)
+      fetchData()
+    } else {
+      message.error(result.error || 'Failed to update user status')
     }
   }
 
@@ -312,37 +355,134 @@ export default function UsersManagementPage() {
         <Card>
           <div className="flex justify-between items-center mb-6">
             <Title level={2}>Users Management</Title>
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />}
-              onClick={() => showModal()}
+          </div>
+
+          <Tabs activeKey={activeTab} onChange={setActiveTab}>
+            <Tabs.TabPane tab="Registered Users" key="1">
+              <div className="mb-4">
+                <Input
+                  placeholder="Search users by name or email"
+                  prefix={<SearchOutlined />}
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  style={{ maxWidth: 300 }}
+                />
+              </div>
+
+              <Table
+                dataSource={filteredUsers}
+                columns={columns}
+                loading={loading}
+                rowKey="id"
+                pagination={{
+                  pageSize: 10,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total) => `Total ${total} users`
+                }}
+              />
+            </Tabs.TabPane>
+
+            <Tabs.TabPane 
+              tab={
+                <span>
+                  <UserAddOutlined /> Create New User
+                </span>
+              } 
+              key="2"
             >
-              Add User
-            </Button>
-          </div>
+              <Card className="mb-4 bg-blue-50">
+                <Text type="secondary">
+                  <strong>Note:</strong> In Bansgaon Sandesh, only admins can create user accounts. 
+                  Users will receive an invitation email to set their password and complete registration.
+                </Text>
+              </Card>
+              
+              <div className="flex justify-end mb-4">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setCreateUserModalVisible(true)}
+                >
+                  Create New User
+                </Button>
+              </div>
 
-          <div className="mb-4">
-            <Input
-              placeholder="Search users by name or email"
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ maxWidth: 300 }}
-            />
-          </div>
-
-          <Table
-            dataSource={filteredUsers}
-            columns={columns}
-            loading={loading}
-            rowKey="id"
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total) => `Total ${total} users`
-            }}
-          />
+              <Table
+                dataSource={adminUsers}
+                loading={loading}
+                rowKey="id"
+                columns={[
+                  {
+                    title: 'Name',
+                    dataIndex: 'name',
+                    key: 'name',
+                  },
+                  {
+                    title: 'Email',
+                    dataIndex: 'email',
+                    key: 'email',
+                  },
+                  {
+                    title: 'Phone',
+                    dataIndex: 'phone',
+                    key: 'phone',
+                  },
+                  {
+                    title: 'Status',
+                    dataIndex: 'is_active',
+                    key: 'is_active',
+                    render: (isActive: boolean) => (
+                      <Tag color={isActive ? 'green' : 'red'}>
+                        {isActive ? 'Active' : 'Inactive'}
+                      </Tag>
+                    ),
+                  },
+                  {
+                    title: 'Activated',
+                    dataIndex: 'activated_at',
+                    key: 'activated_at',
+                    render: (activated: string | null) => (
+                      <Tag color={activated ? 'blue' : 'orange'}>
+                        {activated ? 'Yes' : 'Pending'}
+                      </Tag>
+                    ),
+                  },
+                  {
+                    title: 'Created At',
+                    dataIndex: 'created_at',
+                    key: 'created_at',
+                    render: (date: string) => new Date(date).toLocaleDateString('en-IN'),
+                  },
+                  {
+                    title: 'Actions',
+                    key: 'actions',
+                    render: (_: any, record: any) => (
+                      <Space>
+                        <Popconfirm
+                          title={`${record.is_active ? 'Deactivate' : 'Activate'} this user?`}
+                          onConfirm={() => handleToggleUserStatus(record.id, record.is_active)}
+                          okText="Yes"
+                          cancelText="No"
+                        >
+                          <Button 
+                            size="small"
+                            icon={record.is_active ? <CloseCircleOutlined /> : <CheckCircleOutlined />}
+                          >
+                            {record.is_active ? 'Deactivate' : 'Activate'}
+                          </Button>
+                        </Popconfirm>
+                      </Space>
+                    ),
+                  },
+                ]}
+                pagination={{
+                  pageSize: 10,
+                  showTotal: (total) => `Total ${total} users created by admin`
+                }}
+              />
+            </Tabs.TabPane>
+          </Tabs>
         </Card>
 
         <Modal
@@ -421,6 +561,69 @@ export default function UsersManagementPage() {
                 <Option value={false}>No</Option>
               </Select>
             </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* Create New User Modal */}
+        <Modal
+          title="Create New User"
+          open={createUserModalVisible}
+          onCancel={() => {
+            setCreateUserModalVisible(false)
+            createUserForm.resetFields()
+          }}
+          footer={null}
+          width={500}
+        >
+          <Form
+            form={createUserForm}
+            layout="vertical"
+            onFinish={handleCreateNewUser}
+          >
+            <Form.Item
+              label="Name"
+              name="name"
+              rules={[
+                { required: true, message: 'Please enter name' },
+                { min: 2, message: 'Name must be at least 2 characters' }
+              ]}
+            >
+              <Input placeholder="Full Name" />
+            </Form.Item>
+
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                { required: true, message: 'Please enter email' },
+                { type: 'email', message: 'Please enter a valid email' }
+              ]}
+            >
+              <Input placeholder="user@example.com" />
+            </Form.Item>
+
+            <Form.Item
+              label="Phone"
+              name="phone"
+              rules={[
+                { required: true, message: 'Please enter phone number' },
+                { pattern: /^[6-9]\d{9}$/, message: 'Please enter a valid 10-digit Indian phone number' }
+              ]}
+            >
+              <Input placeholder="9876543210" maxLength={10} />
+            </Form.Item>
+
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => {
+                setCreateUserModalVisible(false)
+                createUserForm.resetFields()
+              }}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Create User
+              </Button>
+            </div>
           </Form>
         </Modal>
       </motion.div>

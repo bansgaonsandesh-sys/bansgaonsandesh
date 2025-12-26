@@ -5,6 +5,7 @@ import { Typography, Card } from 'antd'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowLeftOutlined } from '@ant-design/icons'
+import { siteConfig } from '@/config/site'
 
 const { Title, Paragraph } = Typography
 
@@ -98,7 +99,7 @@ export default function PrivacyPage() {
                   If you have questions about this Privacy Policy, please contact us at:
                 </Paragraph>
                 <Paragraph className="font-semibold">
-                  Email: support@nextupdate.in
+                  Email: {siteConfig.contact.email}
                 </Paragraph>
               </section>
             </div>

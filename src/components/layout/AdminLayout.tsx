@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Layout, Menu, Avatar, Dropdown, Button, Typography, Space, Badge, message } from 'antd'
+import { siteConfig as SITE_CONFIG } from '@/config/site'
 import {
   DashboardOutlined,
   UserOutlined,
@@ -123,7 +124,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
             {!collapsed && (
               <div>
-                <Title level={4} className="mb-0 text-gray-800">Next Update</Title>
+                <Title level={4} className="mb-0 text-gray-800">{SITE_CONFIG.name}</Title>
                 <Text type="secondary" className="text-xs">Admin Panel</Text>
               </div>
             )}
@@ -156,7 +157,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 Admin Dashboard
               </Title>
               <Text type="secondary" className="text-sm">
-                Manage your Next Update platform
+                Manage your {SITE_CONFIG.name} platform
               </Text>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, Typography, Button, Space, List, Tag, Modal, Upload, Form, InputNumber, Spin, Alert, App } from 'antd'
+import { siteConfig as SITE_CONFIG } from '@/config/site'
 import {
   WalletOutlined,
   PlusOutlined,
@@ -410,7 +411,7 @@ export default function WalletPage() {
       key: 'app_share',
       label: 'Share the app',
       points: POINTS_CONFIG.APP_SHARE,
-      hint: 'Invite friends to Next Update'
+      hint: `Invite friends to ${SITE_CONFIG.name}`
     },
     {
       key: 'post_share',
@@ -745,7 +746,7 @@ export default function WalletPage() {
                 <div className="mt-2 space-y-2">
                   <div className="space-y-1 text-sm">
                     <div><strong>UPI ID:</strong> 44078944317@sbi</div>
-                    <div><strong>Account Name:</strong> Next Update News Agency</div>
+                    <div><strong>Account Name:</strong> {SITE_CONFIG.name}</div>
                     <div><strong>Account No:</strong> 44078944317</div>
                     <div><strong>IFSC:</strong> SBIN0001687</div>
                     <div><strong>Branch:</strong> BANSGAON</div>

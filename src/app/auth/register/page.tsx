@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Form, Input, Button, Typography, Space, Alert, Select, Divider } from 'antd'
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, GiftOutlined, GoogleOutlined } from '@ant-design/icons'
+import { Form, Input, Button, Typography, Space, Alert, Select, Divider, Card, Result } from 'antd'
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, GiftOutlined, GoogleOutlined, StopOutlined } from '@ant-design/icons'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { supabaseClient } from '../../../lib/supabase-client'
 import { generateReferralCode } from '../../../lib/utils'
+import { siteConfig } from '@/config/site'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -28,6 +29,9 @@ export default function RegisterPage() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  // For Bansgaon Sandesh, signup is disabled
+  const signupDisabled = true
   const [cities, setCities] = useState<any[]>([])
   const [referralCode, setReferralCode] = useState('')
   const [referralValidation, setReferralValidation] = useState<{
@@ -237,7 +241,32 @@ export default function RegisterPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md bg-white md:p-8 md:rounded-2xl md:shadow-xl flex flex-col px-6 py-6 overflow-y-auto"
       >
-        <div className="flex-1">
+        {signupDisabled ? (
+          <Card>
+            <Result
+              icon={<StopOutlined style={{ color: '#ff4d4f' }} />}
+              title="Sign Up Disabled"
+              subTitle={
+                <div className="text-left">
+                  <p>For {siteConfig.name}, user registration is managed by administrators.</p>
+                  <p className="mt-4">If you need an account, please contact the admin at:</p>
+                  <p className="font-semibold mt-2">{siteConfig.contact.email}</p>
+                  <p className="font-semibold">{siteConfig.contact.phone}</p>
+                  <p className="mt-4 text-gray-500">Already have an account?</p>
+                </div>
+              }
+              extra={[
+                <Button type="primary" key="login" onClick={() => router.push('/auth/login')}>
+                  Go to Login
+                </Button>,
+                <Button key="home" onClick={() => router.push('/')}>
+                  Back to Home
+                </Button>
+              ]}
+            />
+          </Card>
+        ) : (
+          <div className="flex-1">{/* Existing signup form */}
           {/* Header */}
           <div className="text-center mb-8">
             <motion.div
@@ -248,7 +277,7 @@ export default function RegisterPage() {
             >
               <UserOutlined className="text-white text-2xl" />
             </motion.div>
-            <Title level={2} className="mb-2">Join Next Update!</Title>
+            <Title level={2} className="mb-2">Join {siteConfig.name}!</Title>
             <Text type="secondary">Create your account and start earning points</Text>
           </div>
 
@@ -462,6 +491,7 @@ export default function RegisterPage() {
             </Text>
           </div>
         </div>
+        )}
 
         {/* Footer */}
         <div className="text-center mt-6 pb-safe">

@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { siteConfig } from '@/config/site'
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime)
@@ -125,8 +126,9 @@ export function debounce<T extends (...args: any[]) => void>(
  */
 export function isAdmin(email: string): boolean {
   const adminEmails = [
-    'admin@nextupdate.in',
-    'support@nextupdate.in'
+    siteConfig.contact.email,
+    `admin@${siteConfig.domain}`,
+    `support@${siteConfig.domain}`
   ]
   return adminEmails.includes(email.toLowerCase())
 }
@@ -176,10 +178,10 @@ export const VALIDATION_RULES = {
  * App configuration constants
  */
 export const APP_CONFIG = {
-  APP_NAME: 'Next Update',
-  APP_DESCRIPTION: 'Social + Referral Platform',
-  DEFAULT_CITY: 'Lucknow',
+  APP_NAME: siteConfig.name,
+  APP_DESCRIPTION: siteConfig.description,
+  DEFAULT_CITY: 'Gorakhpur',
   SUPPORTED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   SUPPORTED_VIDEO_TYPES: ['video/mp4', 'video/webm', 'video/mov'],
-  API_BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'
+  API_BASE_URL: siteConfig.apiUrl
 } as const

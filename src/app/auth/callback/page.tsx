@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Spin, Result } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 import { supabaseClient } from '../../../lib/supabase-client'
+import { isAdminEmail, siteConfig as SITE_CONFIG } from '@/config/site'
 
 
 export default function AuthCallbackPage() {
@@ -154,7 +155,7 @@ export default function AuthCallbackPage() {
 
             // Check if user is admin
             const email = data.user.email?.toLowerCase()
-            const isAdmin = email === 'admin@nextupdate.in' || email === 'support@nextupdate.in'
+            const isAdmin = email && isAdminEmail(email)
 
             if (isAdmin) {
               setMessage('Login successful! Redirecting to admin panel...')
@@ -217,7 +218,7 @@ export default function AuthCallbackPage() {
             setStatus('success')
             setMessage('Already authenticated!')
             const email = user.email?.toLowerCase()
-            const isAdmin = email === 'admin@nextupdate.in' || email === 'support@nextupdate.in'
+            const isAdmin = email && isAdminEmail(email)
             setTimeout(() => router.push(isAdmin ? '/admin' : '/'), 1000)
           } else {
             setStatus('error')
@@ -260,7 +261,7 @@ export default function AuthCallbackPage() {
           {deepLinkUrl && (
             <div className="mt-6 text-center">
               <p className="text-gray-600 mb-4 font-semibold">✅ You're logged in!</p>
-              <p className="text-sm text-gray-500 mb-4">Return to the Next Update app and you'll be signed in.</p>
+              <p className="text-sm text-gray-500 mb-4">Return to the {SITE_CONFIG.name} app and you'll be signed in.</p>
               <a
                 href={deepLinkUrl}
                 className="inline-block bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl text-lg"

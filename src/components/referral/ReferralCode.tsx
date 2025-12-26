@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { socialActions, supabaseClient } from '../../lib/supabase-client'
 import { useApp } from '../../lib/providers'
 import { APP_STORE_LINK } from '../../lib/utils'
+import { siteConfig as SITE_CONFIG } from '@/config/site'
 
 
 const { Title, Text, Paragraph } = Typography
@@ -84,15 +85,15 @@ export default function ReferralCode() {
     try {
       // Use mobile bridge for native sharing - we're always in WebView
       const shareData = {
-        title: 'Join Next Update',
-        text: `Join me on Next Update and we both get 100 bonus points! Use referral code: ${referralCode}`,
+        title: `Join ${SITE_CONFIG.name}`,
+        text: `Join me on ${SITE_CONFIG.name} and we both get 100 bonus points! Use referral code: ${referralCode}`,
         url: APP_STORE_LINK
       }
 
       if (navigator.share) {
         await navigator.share(shareData)
       } else {
-        await navigator.clipboard.writeText(`Join me on Next Update! Use referral code: ${referralCode}\n${APP_STORE_LINK}`)
+        await navigator.clipboard.writeText(`Join me on ${SITE_CONFIG.name}! Use referral code: ${referralCode}\n${APP_STORE_LINK}`)
         message.success('Referral link copied!')
       }
 

@@ -12,6 +12,7 @@ import InfiniteScrollList from '../components/shared/InfiniteScrollList'
 import PullToRefresh from '../components/shared/PullToRefresh'
 import SponsoredPostCard from '../components/ads/SponsoredPostCard'
 import AdminBanner from '../components/ads/AdminBanner'
+import { siteConfig } from '@/config/site'
 
 interface Post {
   id: string
@@ -177,14 +178,6 @@ export default function HomePage() {
                 <p className="text-gray-500 mb-4">
                   Connect with your local community. Share updates, news, and events happening around you.
                 </p>
-                {!user && (
-                  <button
-                    onClick={() => router.push('/auth/register')}
-                    className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
-                  >
-                    Join Conversation
-                  </button>
-                )}
                 {user && user.is_verified && (
                   <button
                     onClick={() => router.push('/ads/create')}
@@ -200,7 +193,7 @@ export default function HomePage() {
                 <a href="/about" className="hover:underline">About</a>
                 <a href="/privacy" className="hover:underline">Privacy</a>
                 <a href="/terms" className="hover:underline">Terms</a>
-                <span>© 2024 Next Update</span>
+                <span>© {new Date().getFullYear()} {siteConfig.name}</span>
               </div>
             </div>
           </div>

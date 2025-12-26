@@ -1,6 +1,7 @@
 import { AuthProvider } from '@refinedev/core'
 import { supabase } from './supabase'
 import { generateReferralCode } from './utils'
+import { siteConfig } from '@/config/site'
 
 // Extended Supabase client for Refine
 export const supabaseClient = supabase
@@ -166,8 +167,12 @@ export const authProvider: AuthProvider = {
       const { data: { user } } = await supabaseClient.auth.getUser()
       
       if (user) {
-        // Check if user is admin
-        const adminEmails = ['admin@nextupdate.in', 'support@nextupdate.in', 'admin@ghar-khojo.com', 'support@ghar-khojo.com']
+        // Check if user is admin - use emails from config
+        const adminEmails = [
+          siteConfig.contact.email,
+          `admin@${siteConfig.domain}`,
+          `support@${siteConfig.domain}`
+        ]
         const isAdmin = adminEmails.includes((user.email || '').toLowerCase())
         
         return {

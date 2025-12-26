@@ -1,12 +1,12 @@
 {
-  "name": "Next Update",
-  "short_name": "Next Update",
+  "name": "Bansgaon Sandesh",
+  "short_name": "Bansgaon Sandesh",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0F172A",
   "theme_color": "#0F172A",
   "lang": "en",
-  "description": "Next Update is a city-first social and referral community with rewards and rich media sharing.",
+  "description": "Bansgaon Sandesh is a city-first social and referral community with rewards and rich media sharing.",
   "icons": [
     {
       "src": "/app-icon.png",

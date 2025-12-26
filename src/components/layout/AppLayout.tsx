@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import { siteConfig as SITE_CONFIG } from '@/config/site'
 import {
   HomeOutlined,
   CompassOutlined,
@@ -147,7 +148,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     city.toLowerCase().includes(citySearchText.toLowerCase())
   )
 
-  const cityDropdownRender = () => (
+  const cityPopupRender = () => (
     <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
       <div className="p-2 border-b border-gray-200 sticky top-0 bg-white z-10">
         <Input
@@ -265,7 +266,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <div className="flex items-center justify-between">
             {/* City Selector */}
             <Dropdown
-              dropdownRender={cityDropdownRender}
+              popupRender={cityPopupRender}
               trigger={['click']}
               placement="bottomLeft"
               onOpenChange={(open) => {
@@ -375,7 +376,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         onCitySelect={handleCitySelect}
         onClose={() => setShowCitySelection(false)}
         showSkip={true}
-        title={isGuest ? "Welcome to Next Update!" : "Select Your City"}
+        title={isGuest ? `Welcome to ${SITE_CONFIG.name}!` : "Select Your City"}
         description={isGuest
           ? "Choose your city to see local news and connect with your community"
           : "Change your city to see different local content"

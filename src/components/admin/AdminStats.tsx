@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Card, Row, Col, Statistic, Progress, Typography, Space } from 'antd'
+import { siteConfig as SITE_CONFIG } from '@/config/site'
 import { 
   UserOutlined, 
   FileTextOutlined, 
@@ -145,7 +146,7 @@ export default function AdminStats() {
       {/* Title */}
       <div>
         <Title level={3} className="mb-2">Platform Overview</Title>
-        <Text type="secondary">Real-time statistics for Next Update platform</Text>
+        <Text type="secondary">Real-time statistics for {SITE_CONFIG.name} platform</Text>
       </div>
 
       {/* Stats Grid */}
