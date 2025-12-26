@@ -134,7 +134,7 @@ export default function TermsPage() {
                   If you have any questions about these Terms of Service, please contact us at:
                 </Paragraph>
                 <Paragraph className="font-semibold">
-                  Email: support@nextupdate.in
+                  Email: support@bansgaonsandesh.com
                 </Paragraph>
               </section>
             </div>

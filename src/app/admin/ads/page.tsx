@@ -133,7 +133,7 @@ export default function AdminAdsPage() {
             }
 
             const email = session.user.email || ''
-            const adminEmails = ['admin@nextupdate.in']
+            const adminEmails = ['admin@bansgaonsandesh.com']
             if (!adminEmails.includes(email.toLowerCase())) {
                 router.replace('/')
                 return

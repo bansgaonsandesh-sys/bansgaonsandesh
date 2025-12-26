@@ -10,7 +10,7 @@ dayjs.extend(relativeTime)
 /**
  * App Store Link - Used in all share functionality
  */
-export const APP_STORE_LINK = 'https://play.google.com/store/apps/details?id=com.skyably.nextupdate'
+export const APP_STORE_LINK = 'https://play.google.com/store/apps/details?id=com.skyably.bansgaonsandesh'
 
 /**
  * Merge tailwind classes with clsx

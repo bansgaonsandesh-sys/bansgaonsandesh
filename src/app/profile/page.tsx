@@ -443,7 +443,7 @@ export default function ProfilePage() {
       const shareData = {
         title: `Join ${user?.name} on ${SITE_CONFIG.name}!`,
         text: `Use my referral code ${user?.referral_code} and get 100 points!`,
-        url: `https://app.nextupdate.in/profile/${user?.id}`
+        url: `https://app.bansgaonsandesh.com/profile/${user?.id}`
       }
 
       if (navigator.share) {
