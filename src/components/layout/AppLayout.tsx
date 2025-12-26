@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { siteConfig as SITE_CONFIG } from '@/config/site'
 import {
@@ -264,28 +265,33 @@ export default function AppLayout({ children }: AppLayoutProps) {
           transition={{ duration: 0.3 }}
         >
           <div className="flex items-center justify-between">
-            {/* City Selector */}
-            <Dropdown
-              popupRender={cityPopupRender}
-              trigger={['click']}
-              placement="bottomLeft"
-              onOpenChange={(open) => {
-                if (!open) setCitySearchText('')
-              }}
-            >
-              <div className="flex items-center cursor-pointer hover:bg-gray-100 rounded-lg px-3 py-2 transition-colors">
-                <EnvironmentOutlined className="text-primary mr-2" />
-                <span className="font-semibold text-gray-800">{selectedCity || 'Select City'}</span>
-                {userCity && userCity !== selectedCity && (
-                  <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                    Home: {userCity}
-                  </span>
-                )}
-              </div>
-            </Dropdown>
+            {/* Logo */}
+            <div className="cursor-pointer" onClick={() => router.push('/')}>
+              <Image 
+                src="/logoo.jpeg" 
+                alt={SITE_CONFIG.name}
+                width={120}
+                height={40}
+                className="w-auto h-8 object-contain"
+                priority
+              />
+            </div>
 
-            {/* Right Side */}
-            <div className="flex items-center space-x-3">
+            {/* Right Side - City Selector & Profile */}
+            <div className="flex items-center space-x-2">
+              {/* City Selector */}
+              <Dropdown
+                popupRender={cityPopupRender}
+                trigger={['click']}
+                placement="bottomRight"
+                onOpenChange={(open) => {
+                  if (!open) setCitySearchText('')
+                }}
+              >
+                <div className="flex items-center cursor-pointer hover:bg-gray-100 rounded-lg px-2 py-1.5 transition-colors">
+                  <EnvironmentOutlined className="text-primary text-lg" />
+                </div>
+              </Dropdown>
               {/* Profile */}
               <Dropdown
                 menu={{ items: profileItems }}

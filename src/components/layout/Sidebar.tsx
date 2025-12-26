@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { siteConfig as SITE_CONFIG } from '@/config/site'
 import {
@@ -127,10 +128,15 @@ export default function Sidebar() {
 
     return (
         <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-gray-100 bg-white/80 backdrop-blur-xl px-4 py-6">
-            <div className="mb-8 px-4">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    {SITE_CONFIG.name}
-                </h1>
+            <div className="mb-8 px-4 cursor-pointer" onClick={() => router.push('/')}>
+                <Image 
+                    src="/logoo.jpeg" 
+                    alt={SITE_CONFIG.name}
+                    width={180}
+                    height={60}
+                    className="w-auto h-12 object-contain"
+                    priority
+                />
             </div>
 
             {/* City Selector */}

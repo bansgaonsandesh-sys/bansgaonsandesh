@@ -119,13 +119,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           animate={{ opacity: 1 }}
         >
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-primary to-purple-500 rounded-lg flex items-center justify-center">
-              <Text className="text-white font-bold text-sm">NU</Text>
-            </div>
-            {!collapsed && (
-              <div>
-                <Title level={4} className="mb-0 text-gray-800">{SITE_CONFIG.name}</Title>
+            {!collapsed ? (
+              <div className="flex flex-col">
+                <Image 
+                  src="/logoo.jpeg" 
+                  alt={SITE_CONFIG.name}
+                  width={140}
+                  height={50}
+                  className="w-auto h-10 object-contain mb-1"
+                  priority
+                />
                 <Text type="secondary" className="text-xs">Admin Panel</Text>
+              </div>
+            ) : (
+              <div className="w-8 h-8 bg-gradient-to-r from-primary to-purple-500 rounded-lg flex items-center justify-center">
+                <Text className="text-white font-bold text-sm">NU</Text>
               </div>
             )}
           </div>

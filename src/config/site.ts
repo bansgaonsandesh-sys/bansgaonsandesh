@@ -52,9 +52,9 @@ export const siteConfig = {
   
   // Images and Media
   images: {
-    logo: '/logo.png',
-    logoLight: '/logo-light.png',
-    logoDark: '/logo-dark.png',
+    logo: '/logoo.jpeg',
+    logoLight: '/logoo.jpeg',
+    logoDark: '/logoo.jpeg',
     favicon: '/favicon.ico',
     ogImage: '/og-image.jpg',
     defaultAvatar: '/default-avatar.png',
