@@ -218,7 +218,7 @@ export function getProxiedImageUrl(url: string | null | undefined): string | nul
   // If it's already a valid R2 public URL (new domain), return as is
   if (
     url.includes('pub-6e7642a7bb4b4b13b9e8f03f6af6a982.r2.dev/') ||
-    url.includes('next-update.r2.dev/') ||
+    url.includes('bansgaonsandesh.r2.dev/') ||
     (url.includes('pub-') && url.includes('.r2.dev/'))
   ) {
     return url

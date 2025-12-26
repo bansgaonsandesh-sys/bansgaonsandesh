@@ -23,7 +23,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'next-update.r2.dev',
+        hostname: 'bansgaonsandesh.r2.dev',
       },
       // YouTube
       {
