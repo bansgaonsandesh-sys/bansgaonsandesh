@@ -150,6 +150,7 @@ export default function PostsManagementPage() {
             state
           )
         `)
+        .eq('project_id', 'bansgaonsandesh')
         .order('created_at', { ascending: false })
 
       if (postsError) throw postsError

@@ -232,6 +232,7 @@ export default function ProfilePage() {
           `)
           .eq('user_id', user.id)
           .eq('is_active', true)
+          .eq('project_id', 'bansgaonsandesh')
           .order('created_at', { ascending: false }),
         supabaseClient
           .from('cities')

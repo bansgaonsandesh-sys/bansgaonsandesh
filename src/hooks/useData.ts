@@ -32,6 +32,7 @@ export function usePosts(selectedCity: string | null, userId: string | null) {
         `)
         .eq('city_id', cityData.id)
         .eq('is_active', true)
+        .eq('project_id', 'bansgaonsandesh')
         .order('created_at', { ascending: false })
         .limit(20)
 
@@ -95,6 +96,7 @@ export function useUserPosts(userId: string | null) {
         .select('*')
         .eq('user_id', userId)
         .eq('is_active', true)
+        .eq('project_id', 'bansgaonsandesh')
         .order('created_at', { ascending: false })
 
       if (error) throw error

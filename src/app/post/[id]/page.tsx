@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         cities:city_id(name)
       `)
       .eq('id', postId)
-      .eq('is_active', true)
+      .eq('is_active', true)      .eq('project_id', 'bansgaonsandesh')      .eq('project_id', 'bansgaonsandesh')
       .single()
 
     if (error || !post) {
@@ -120,6 +120,7 @@ export async function generateStaticParams() {
       .from('posts')
       .select('id')
       .eq('is_active', true)
+      .eq('project_id', 'bansgaonsandesh')
       .order('created_at', { ascending: false })
       .limit(100) // Generate top 100 posts at build time
 
@@ -153,6 +154,7 @@ export default async function PostPage({ params }: PostPageProps) {
       `)
       .eq('id', postId)
       .eq('is_active', true)
+      .eq('project_id', 'bansgaonsandesh')
       .single()
 
     if (error || !post) {

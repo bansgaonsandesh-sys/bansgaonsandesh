@@ -13,7 +13,8 @@ import {
   Avatar,
   Tag,
   Progress,
-  Divider
+  Divider,
+  Radio
 } from 'antd'
 import {
   UserOutlined,
@@ -67,6 +68,7 @@ interface RecentActivity {
 export default function AdminDashboard() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [selectedProject, setSelectedProject] = useState<string>('all')
   const [stats, setStats] = useState<DashboardStats>({
     total_users: 0,
     total_posts: 0,
@@ -87,11 +89,19 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardData()
-  }, [])
+  }, [selectedProject])
 
   const fetchDashboardData = async () => {
     setLoading(true)
     try {
+      // Build query with optional project filter
+      const buildQuery = (query: any) => {
+        if (selectedProject !== 'all') {
+          return query.eq('project_id', selectedProject)
+        }
+        return query
+      }
+
       // Fetch comprehensive dashboard statistics
       const [
         usersResult,
@@ -107,18 +117,18 @@ export default function AdminDashboard() {
         verifiedUsersResult,
         blueTickUsersResult
       ] = await Promise.all([
-        supabaseClient.from('profiles').select('id', { count: 'exact' }),
-        supabaseClient.from('posts').select('id', { count: 'exact' }).eq('is_active', true),
+        buildQuery(supabaseClient.from('profiles').select('id', { count: 'exact' })),
+        buildQuery(supabaseClient.from('posts').select('id', { count: 'exact' }).eq('is_active', true)),
         supabaseClient.from('cities').select('id, is_active', { count: 'exact' }),
         supabaseClient.from('kyc_submissions').select('id', { count: 'exact' }).eq('status', 'pending'),
         supabaseClient.from('payment_requests').select('id', { count: 'exact' }).eq('status', 'pending'),
         supabaseClient.from('points_transactions').select('amount').eq('type', 'earned'),
-        supabaseClient.from('ads').select('id', { count: 'exact' }),
-        supabaseClient.from('ads').select('id', { count: 'exact' }).eq('status', 'pending'),
-        supabaseClient.from('ads').select('id', { count: 'exact' }).eq('status', 'active'),
-        supabaseClient.from('ads').select('id', { count: 'exact' }).eq('status', 'rejected'),
-        supabaseClient.from('profiles').select('id', { count: 'exact' }).eq('is_verified', true),
-        supabaseClient.from('profiles').select('id', { count: 'exact' }).eq('has_blue_tick', true)
+        buildQuery(supabaseClient.from('ads').select('id', { count: 'exact' })),
+        buildQuery(supabaseClient.from('ads').select('id', { count: 'exact' }).eq('status', 'pending')),
+        buildQuery(supabaseClient.from('ads').select('id', { count: 'exact' }).eq('status', 'active')),
+        buildQuery(supabaseClient.from('ads').select('id', { count: 'exact' }).eq('status', 'rejected')),
+        buildQuery(supabaseClient.from('profiles').select('id', { count: 'exact' }).eq('is_verified', true)),
+        buildQuery(supabaseClient.from('profiles').select('id', { count: 'exact' }).eq('has_blue_tick', true))
       ])
 
       // Calculate stats
@@ -279,7 +289,18 @@ export default function AdminDashboard() {
       transition={{ duration: 0.5 }}
     >
       <div className="p-6">
-        <Title level={2} className="mb-6">Admin Dashboard</Title>
+        <div className="flex justify-between items-center mb-6">
+          <Title level={2} className="mb-0">Admin Dashboard</Title>
+          <Radio.Group 
+            value={selectedProject} 
+            onChange={(e) => setSelectedProject(e.target.value)}
+            buttonStyle="solid"
+          >
+            <Radio.Button value="all">All Projects</Radio.Button>
+            <Radio.Button value="bansgaonsandesh">Bansgaon Sandesh</Radio.Button>
+            <Radio.Button value="nextupdate">Next Update</Radio.Button>
+          </Radio.Group>
+        </div>
 
         {/* Main Statistics */}
         <Row gutter={[16, 16]} className="mb-8">

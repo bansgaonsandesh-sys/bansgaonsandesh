@@ -93,6 +93,7 @@ export default function ExplorePage() {
         `)
         .eq('city_id', cityData.id)
         .eq('is_active', true)
+        .eq('project_id', 'bansgaonsandesh')
         .gte('created_at', sevenDaysAgo.toISOString())
         .order('likes_count', { ascending: false })
         .limit(20)
@@ -185,6 +186,7 @@ export default function ExplorePage() {
         .from('profiles')
         .select('id, name, avatar_url, is_verified, has_blue_tick, created_at')
         .eq('city_id', cityData.id)
+        .eq('project_id', 'bansgaonsandesh')
         .neq('id', user.id)
 
       // Apply search filter if search query exists
@@ -220,6 +222,7 @@ export default function ExplorePage() {
           .select('user_id')
           .in('user_id', userIds)
           .eq('is_active', true)
+          .eq('project_id', 'bansgaonsandesh')
       ])
 
       // Count followers and posts per user

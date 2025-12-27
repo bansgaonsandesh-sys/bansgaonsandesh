@@ -23,7 +23,7 @@ import { supabaseClient } from '../../lib/supabase-client'
 export default function Sidebar() {
     const pathname = usePathname()
     const router = useRouter()
-    const { isGuest, selectedCity, userCity, setSelectedCity } = useApp()
+    const { isGuest, selectedCity, userCity, setSelectedCity, user } = useApp()
     const [citiesFromDB, setCitiesFromDB] = useState<Array<{ id: string; name: string }>>([])
     const [citySearchText, setCitySearchText] = useState('')
 
@@ -77,7 +77,8 @@ export default function Sidebar() {
     ] : [
         { key: '/', icon: HomeOutlined, label: 'Home' },
         { key: '/explore', icon: CompassOutlined, label: 'Explore' },
-        { key: '/create', icon: PlusCircleOutlined, label: 'Create' },
+        // Only show Create button for bansgaonsandesh users
+        ...(user?.project_id === 'bansgaonsandesh' ? [{ key: '/create', icon: PlusCircleOutlined, label: 'Create' }] : []),
         { key: '/wallet', icon: WalletOutlined, label: 'Wallet' },
         { key: '/profile', icon: UserOutlined, label: 'Profile' },
     ]

@@ -25,6 +25,7 @@ export const mockCurrentUser: Profile = {
   has_blue_tick: true,
   referral_code: 'JOHN2024',
   referred_by: null,
+  project_id: 'bansgaonsandesh',
   created_at: '2024-01-15T00:00:00Z',
   updated_at: '2024-01-20T00:00:00Z'
 };
@@ -45,6 +46,7 @@ export const mockUsers: Profile[] = [
     has_blue_tick: false,
     referral_code: 'JANE2024',
     referred_by: null,
+    project_id: 'bansgaonsandesh',
     created_at: '2024-01-10T00:00:00Z',
     updated_at: '2024-01-18T00:00:00Z'
   },
@@ -60,6 +62,7 @@ export const mockUsers: Profile[] = [
     has_blue_tick: true,
     referral_code: 'MIKE2024',
     referred_by: 'user-1',
+    project_id: 'bansgaonsandesh',
     created_at: '2024-01-05T00:00:00Z',
     updated_at: '2024-01-19T00:00:00Z'
   },
@@ -75,6 +78,7 @@ export const mockUsers: Profile[] = [
     has_blue_tick: false,
     referral_code: 'SARAH2024',
     referred_by: 'user-2',
+    project_id: 'bansgaonsandesh',
     created_at: '2024-01-12T00:00:00Z',
     updated_at: '2024-01-17T00:00:00Z'
   }

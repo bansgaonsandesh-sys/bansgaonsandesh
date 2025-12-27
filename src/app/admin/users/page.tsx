@@ -36,7 +36,7 @@ import { motion } from 'framer-motion'
 import AdminLayout from '../../../components/layout/AdminLayout'
 import { supabaseClient } from '../../../lib/supabase-client'
 import { isAdmin } from '../../../lib/utils'
-import { adminCreateUser, getAdminCreatedUsers, toggleUserStatus } from '@/app/actions/userActions'
+import { adminCreateUser, adminUpdateUser, getAdminCreatedUsers, toggleUserStatus } from '@/app/actions/userActions'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -55,6 +55,7 @@ interface User {
   age: number | null
   gender: string | null
   created_at: string
+  project_id: string
   cities?: { id: string; name: string }
 }
 
@@ -74,6 +75,7 @@ export default function UsersManagementPage() {
   const [createUserModalVisible, setCreateUserModalVisible] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [searchText, setSearchText] = useState('')
+  const [projectFilter, setProjectFilter] = useState<string>('all')
   const [activeTab, setActiveTab] = useState('1')
   const [form] = Form.useForm()
   const [createUserForm] = Form.useForm()
@@ -162,10 +164,17 @@ export default function UsersManagementPage() {
   const handleSubmit = async (values: any) => {
     try {
       if (editingUser) {
-        // Update existing user
-        const { error } = await supabaseClient
-          .from('profiles')
-          .update({
+        // Get access token from current session
+        const { data: { session } } = await supabaseClient.auth.getSession()
+        if (!session) {
+          message.error('Session expired. Please login again.')
+          return
+        }
+
+        // Update existing user using admin server action
+        const result = await adminUpdateUser(
+          editingUser.id,
+          {
             name: values.name,
             email: values.email,
             phone: values.phone,
@@ -175,19 +184,21 @@ export default function UsersManagementPage() {
             has_blue_tick: values.has_blue_tick,
             age: values.age,
             gender: values.gender,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', editingUser.id)
+          },
+          session.access_token
+        )
 
-        if (error) throw error
-        message.success('User updated successfully')
+        if (result.success) {
+          message.success('User updated successfully')
+          setModalVisible(false)
+          fetchData()
+        } else {
+          message.error(result.error || 'Failed to update user')
+        }
       } else {
-        // Create new user functionality would require auth.admin access
-        message.info('User creation requires additional setup')
+        // Create new user functionality would require additional setup
+        message.info('Please use the "Create New User" button to add users')
       }
-
-      setModalVisible(false)
-      fetchData()
     } catch (error) {
       console.error('Error saving user:', error)
       message.error('Failed to save user')
@@ -213,17 +224,26 @@ export default function UsersManagementPage() {
 
   const handleCreateNewUser = async (values: any) => {
     setLoading(true)
-    const result = await adminCreateUser(values)
+    console.log('🚀 Creating user with data:', values)
+    
+    // Get access token from current session
+    const { data: { session } } = await supabaseClient.auth.getSession()
+    if (!session) {
+      message.error('Session expired. Please login again.')
+      setLoading(false)
+      return
+    }
+    
+    const result = await adminCreateUser({ ...values, accessToken: session.access_token })
+    console.log('📥 Server response:', result)
     
     if (result.success) {
       message.success('User created successfully! Invitation email sent.')
-      if (result.warning) {
-        message.warning(result.warning)
-      }
       createUserForm.resetFields()
       setCreateUserModalVisible(false)
       fetchData()
     } else {
+      console.error('❌ User creation failed:', result.error)
       message.error(result.error || 'Failed to create user')
     }
     setLoading(false)
@@ -240,10 +260,19 @@ export default function UsersManagementPage() {
     }
   }
 
-  const filteredUsers = users.filter(user =>
-    user.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchText.toLowerCase())
-  )
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchText.toLowerCase())
+    const matchesProject = projectFilter === 'all' || user.project_id === projectFilter
+    return matchesSearch && matchesProject
+  })
+
+  const filteredAdminUsers = adminUsers.filter(user => {
+    const matchesSearch = user.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchText.toLowerCase())
+    const matchesProject = projectFilter === 'all' || user.project_id === projectFilter
+    return matchesSearch && matchesProject
+  })
 
   const columns = [
     {
@@ -271,6 +300,16 @@ export default function UsersManagementPage() {
           </Space>
           <Text type="secondary" style={{ fontSize: '12px' }}>{record.email}</Text>
         </Space>
+      )
+    },
+    {
+      title: 'Project',
+      dataIndex: 'project_id',
+      key: 'project',
+      render: (projectId: string) => (
+        <Tag color={projectId === 'bansgaonsandesh' ? 'blue' : 'green'}>
+          {projectId === 'bansgaonsandesh' ? 'Bansgaon Sandesh' : 'Next Update'}
+        </Tag>
       )
     },
     {
@@ -359,7 +398,7 @@ export default function UsersManagementPage() {
 
           <Tabs activeKey={activeTab} onChange={setActiveTab}>
             <Tabs.TabPane tab="Registered Users" key="1">
-              <div className="mb-4">
+              <div className="mb-4 flex gap-4">
                 <Input
                   placeholder="Search users by name or email"
                   prefix={<SearchOutlined />}
@@ -367,6 +406,16 @@ export default function UsersManagementPage() {
                   onChange={(e) => setSearchText(e.target.value)}
                   style={{ maxWidth: 300 }}
                 />
+                <Select
+                  value={projectFilter}
+                  onChange={setProjectFilter}
+                  style={{ width: 200 }}
+                  placeholder="Filter by project"
+                >
+                  <Option value="all">All Projects</Option>
+                  <Option value="bansgaonsandesh">📰 Bansgaon Sandesh</Option>
+                  <Option value="nextupdate">🌐 Next Update</Option>
+                </Select>
               </div>
 
               <Table
@@ -409,7 +458,7 @@ export default function UsersManagementPage() {
               </div>
 
               <Table
-                dataSource={adminUsers}
+                dataSource={filteredAdminUsers}
                 loading={loading}
                 rowKey="id"
                 columns={[
@@ -427,6 +476,16 @@ export default function UsersManagementPage() {
                     title: 'Phone',
                     dataIndex: 'phone',
                     key: 'phone',
+                  },
+                  {
+                    title: 'Project',
+                    dataIndex: 'project_id',
+                    key: 'project',
+                    render: (projectId: string) => (
+                      <Tag color={projectId === 'bansgaonsandesh' ? 'blue' : 'green'}>
+                        {projectId === 'bansgaonsandesh' ? 'Bansgaon Sandesh' : 'Next Update'}
+                      </Tag>
+                    ),
                   },
                   {
                     title: 'Status',
@@ -611,6 +670,54 @@ export default function UsersManagementPage() {
               ]}
             >
               <Input placeholder="9876543210" maxLength={10} />
+            </Form.Item>
+
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                { required: true, message: 'Please enter password' },
+                { min: 6, message: 'Password must be at least 6 characters' }
+              ]}
+            >
+              <Input.Password placeholder="Minimum 6 characters" />
+            </Form.Item>
+
+            <Form.Item
+              label="City"
+              name="city_id"
+              rules={[{ required: true, message: 'Please select a city' }]}
+            >
+              <Select 
+                placeholder="Select city" 
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.children?.toString().toLowerCase() || '').includes(input.toLowerCase())
+                }
+              >
+                {cities.map((city) => (
+                  <Option key={city.id} value={city.id}>
+                    {city.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="Project"
+              name="project_id"
+              rules={[{ required: true, message: 'Please select a project' }]}
+            >
+              <Select placeholder="Select project">
+                <Option value="bansgaonsandesh">
+                  <span className="text-blue-600">📰 Bansgaon Sandesh</span>
+                  <div className="text-xs text-gray-500">News Agency</div>
+                </Option>
+                <Option value="nextupdate">
+                  <span className="text-green-600">🌐 Next Update</span>
+                  <div className="text-xs text-gray-500">Social Platform</div>
+                </Option>
+              </Select>
             </Form.Item>
 
             <div className="flex justify-end gap-2">

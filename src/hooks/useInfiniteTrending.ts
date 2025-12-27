@@ -65,6 +65,7 @@ export function useInfiniteTrending({
         `)
         .eq('city_id', cityData.id)
         .eq('is_active', true)
+        .eq('project_id', 'bansgaonsandesh')
         .gte('created_at', sevenDaysAgo.toISOString())
         .order('likes_count', { ascending: false })
         .range(pageParam * POSTS_PER_PAGE, (pageParam + 1) * POSTS_PER_PAGE - 1)

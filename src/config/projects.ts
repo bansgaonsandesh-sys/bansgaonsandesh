@@ -1,6 +1,10 @@
 /**
  * Multi-Tenant Project Configuration
  * Manages multiple projects using the same database
+ * 
+ * PROJECT TYPES:
+ * - Next Update: Social platform - anyone can register and post
+ * - Bansgaon Sandesh: News agency - only admin-created users can post
  */
 
 export type ProjectId = 'nextupdate' | 'bansgaonsandesh'

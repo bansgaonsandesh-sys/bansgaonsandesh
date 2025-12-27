@@ -65,14 +65,14 @@ export default function AdminStats() {
         activeRes,
         monthlyRes
       ] = await Promise.all([
-        supabaseClient.from('profiles').select('*', { count: 'exact' }),
-        supabaseClient.from('posts').select('*', { count: 'exact' }).eq('is_active', true),
+        supabaseClient.from('profiles').select('*', { count: 'exact' }).eq('project_id', 'bansgaonsandesh'),
+        supabaseClient.from('posts').select('*', { count: 'exact' }).eq('is_active', true).eq('project_id', 'bansgaonsandesh'),
         supabaseClient.from('points_transactions').select('amount'),
         supabaseClient.from('kyc_submissions').select('*', { count: 'exact' }).eq('status', 'pending'),
         supabaseClient.from('payment_requests').select('*', { count: 'exact' }).eq('status', 'pending'),
-        supabaseClient.from('profiles').select('*', { count: 'exact' }).eq('is_verified', true),
-        supabaseClient.from('profiles').select('*', { count: 'exact' }).gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
-        supabaseClient.from('profiles').select('*', { count: 'exact' }).gte('created_at', currentMonth.toISOString())
+        supabaseClient.from('profiles').select('*', { count: 'exact' }).eq('is_verified', true).eq('project_id', 'bansgaonsandesh'),
+        supabaseClient.from('profiles').select('*', { count: 'exact' }).gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()).eq('project_id', 'bansgaonsandesh'),
+        supabaseClient.from('profiles').select('*', { count: 'exact' }).gte('created_at', currentMonth.toISOString()).eq('project_id', 'bansgaonsandesh')
       ])
 
       const totalPoints = pointsRes.data?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0

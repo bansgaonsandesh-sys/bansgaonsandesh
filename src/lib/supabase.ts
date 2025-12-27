@@ -30,6 +30,7 @@ export type Database = {
           has_blue_tick: boolean
           referral_code: string
           referred_by: string | null
+          project_id: string
           created_at: string
           updated_at: string
         }
@@ -45,6 +46,7 @@ export type Database = {
           has_blue_tick?: boolean
           referral_code: string
           referred_by?: string | null
+          project_id?: string
           created_at?: string
           updated_at?: string
         }

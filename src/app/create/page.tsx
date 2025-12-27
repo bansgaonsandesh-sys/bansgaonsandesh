@@ -39,6 +39,8 @@ export default function CreatePostPage() {
   const [titleEdited, setTitleEdited] = useState(false)
   const [linkPreviews, setLinkPreviews] = useState<LinkPreviewData[]>([])
   const previewRequestRef = useRef(0)
+  const [userProjectId, setUserProjectId] = useState<string>('')
+  const [canPostToBoth, setCanPostToBoth] = useState(false)
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -49,8 +51,28 @@ export default function CreatePostPage() {
         .order('name')
       if (data) setCities(data)
     }
+    
+    const fetchUserProject = async () => {
+      if (user?.id) {
+        const { data } = await supabaseClient
+          .from('profiles')
+          .select('project_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (data) {
+          setUserProjectId(data.project_id)
+          // Bansgaon Sandesh users can post to both projects
+          setCanPostToBoth(data.project_id === 'bansgaonsandesh')
+          // Set default project for form
+          form.setFieldsValue({ target_project: data.project_id })
+        }
+      }
+    }
+    
     if (!isLoading && user) {
       fetchCities()
+      fetchUserProject()
     }
   }, [isLoading, user])
 
@@ -265,12 +287,25 @@ export default function CreatePostPage() {
         mediaType = typeSource.startsWith('video/') ? 'video' : 'image'
       }
 
+      // Determine target project
+      let targetProjectId = userProjectId
+      
+      // If user is from Bansgaon Sandesh, they can choose which project
+      if (canPostToBoth && values.target_project) {
+        targetProjectId = values.target_project
+      }
+      // If user is from Next Update, force to nextupdate
+      else if (userProjectId === 'nextupdate') {
+        targetProjectId = 'nextupdate'
+      }
+
       // Create post
       const { data: inserted, error } = await supabaseClient
         .from('posts')
         .insert({
           user_id: user!.id,
           city_id: selectedCityData.id,
+          project_id: targetProjectId,
           title: values.title && values.title.trim().length > 0
             ? values.title.trim()
             : (content ? content.trim().split(/\s+/).slice(0, 12).join(' ') : null),
@@ -420,6 +455,30 @@ export default function CreatePostPage() {
                   ))}
                 </Select>
               </Form.Item>
+
+              {/* Project Selection - Only for Bansgaon Sandesh users */}
+              {canPostToBoth && (
+                <Form.Item
+                  name="target_project"
+                  label="Post To"
+                  rules={[{ required: true, message: 'Please select a project' }]}
+                >
+                  <Select
+                    placeholder="Select project"
+                    className="rounded-xl"
+                    size="large"
+                  >
+                    <Option value="bansgaonsandesh">
+                      <span className="text-blue-600">📰 Bansgaon Sandesh</span>
+                      <div className="text-xs text-gray-500">News Agency</div>
+                    </Option>
+                    <Option value="nextupdate">
+                      <span className="text-green-600">🌐 Next Update</span>
+                      <div className="text-xs text-gray-500">Social Platform</div>
+                    </Option>
+                  </Select>
+                </Form.Item>
+              )}
 
               {/* Action Buttons */}
               <div className="flex space-x-3 pt-4">

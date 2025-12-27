@@ -122,15 +122,39 @@ export function debounce<T extends (...args: any[]) => void>(
 }
 
 /**
- * Check if user is admin
+ * Check if user is admin (database-driven)
+ * Note: For real-time check, use isAdminAsync() instead
+ * This is a fallback for specific known admin emails
  */
 export function isAdmin(email: string): boolean {
-  const adminEmails = [
-    siteConfig.contact.email,
-    `admin@${siteConfig.domain}`,
-    `support@${siteConfig.domain}`
+  // Fallback list for Bansgaon Sandesh project admins
+  const fallbackAdminEmails = [
+    'admin@bansgaonsandesh.com',
+    'support@bansgaonsandesh.com',
+    'admin@nextupdate.in' // Shared admin for both projects
   ]
-  return adminEmails.includes(email.toLowerCase())
+  return fallbackAdminEmails.includes(email.toLowerCase())
+}
+
+/**
+ * Check if user is admin from database (async)
+ * This is the preferred method - checks role in profiles table
+ */
+export async function isAdminAsync(email: string): Promise<boolean> {
+  try {
+    const { supabaseClient } = await import('./supabase-client')
+    const { data } = await supabaseClient
+      .from('profiles')
+      .select('role, project_id')
+      .eq('email', email.toLowerCase())
+      .eq('project_id', 'bansgaonsandesh')
+      .single()
+    
+    return data?.role === 'admin'
+  } catch (error) {
+    console.error('Error checking admin status:', error)
+    return false
+  }
 }
 
 /**

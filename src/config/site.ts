@@ -36,18 +36,18 @@ export const siteConfig = {
   
   // Social Media
   social: {
-    twitter: process.env.NEXT_PUBLIC_TWITTER_HANDLE || '@bansgaonsandesh',
-    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || 'https://facebook.com/bansgaonsandesh',
-    instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || 'https://instagram.com/bansgaonsandesh',
+    twitter: process.env.NEXT_PUBLIC_TWITTER_HANDLE || '@Bansgaon1989',
+    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || 'https://www.facebook.com/@thebansgaonsandesh',
+    instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || 'https://www.instagram.com/sbansgaon',
     linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL || 'https://linkedin.com/company/bansgaonsandesh',
-    youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || 'https://youtube.com/@bansgaonsandesh',
+    youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || 'https://youtube.com/@thebansgaonsandesh',
   },
   
   // Contact Information
   contact: {
     email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@bansgaonsandesh.com',
-    phone: process.env.NEXT_PUBLIC_CONTACT_PHONE || '+91-1234567890',
-    address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS || 'Bansgaon, Uttar Pradesh, India',
+    phone: process.env.NEXT_PUBLIC_CONTACT_PHONE || '+91-9889802580',
+    address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS || 'Tahsil Gate Bansgaon Gorakhpur Utterpradesh',
   },
   
   // Images and Media
@@ -184,12 +184,14 @@ export function getSocialUrl(platform: keyof typeof siteConfig.social): string {
   return siteConfig.social[platform]
 }
 
-// Helper function to get admin emails
+// Helper function to get admin emails (fallback list)
+// NOTE: Admin status is now database-driven via profiles.role
+// This is a fallback list for Bansgaon Sandesh project admins
 export function getAdminEmails(): string[] {
   return [
-    siteConfig.contact.email,
-    `admin@${siteConfig.domain}`,
-    `support@${siteConfig.domain}`
+    'admin@bansgaonsandesh.com',
+    'support@bansgaonsandesh.com',
+    'admin@nextupdate.in' // Shared admin
   ]
 }
 

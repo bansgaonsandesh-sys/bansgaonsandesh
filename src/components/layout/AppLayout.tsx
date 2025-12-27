@@ -93,7 +93,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   ] : [
     { key: '/', icon: HomeOutlined, label: 'Home' },
     { key: '/explore', icon: CompassOutlined, label: 'Explore' },
-    { key: '/create', icon: PlusCircleOutlined, label: 'Create' },
+    // Only show Create button for bansgaonsandesh users
+    ...(user?.project_id === 'bansgaonsandesh' ? [{ key: '/create', icon: PlusCircleOutlined, label: 'Create' }] : []),
     { key: '/wallet', icon: WalletOutlined, label: 'Wallet' },
     { key: '/profile', icon: UserOutlined, label: 'Profile' },
   ]

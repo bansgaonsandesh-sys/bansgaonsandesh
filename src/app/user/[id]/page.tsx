@@ -89,6 +89,7 @@ export default function UserProfilePage() {
           .select('id', { count: 'exact', head: true })
           .eq('user_id', userId)
           .eq('is_active', true)
+          .eq('project_id', 'bansgaonsandesh')
       ])
 
       return {
@@ -145,6 +146,7 @@ export default function UserProfilePage() {
         `)
         .eq('user_id', userId)
         .eq('is_active', true)
+        .eq('project_id', 'bansgaonsandesh')
         .order('created_at', { ascending: false })
 
       if (error) throw error
