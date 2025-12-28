@@ -78,7 +78,7 @@ export default function Sidebar() {
         { key: '/', icon: HomeOutlined, label: 'Home' },
         { key: '/explore', icon: CompassOutlined, label: 'Explore' },
         // Only show Create button for bansgaonsandesh users
-        ...(user?.project_id === 'bansgaonsandesh' ? [{ key: '/create', icon: PlusCircleOutlined, label: 'Create' }] : []),
+        ...(user?.user_projects?.some(up => up.is_active && up.project_id === 'bansgaonsandesh') || user?.project_id === 'bansgaonsandesh' ? [{ key: '/create', icon: PlusCircleOutlined, label: 'Create' }] : []),
         { key: '/wallet', icon: WalletOutlined, label: 'Wallet' },
         { key: '/profile', icon: UserOutlined, label: 'Profile' },
     ]

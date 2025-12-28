@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import PostDetail from '@/components/post/PostDetail'
 import { siteConfig as SITE_CONFIG, getAbsoluteUrl, getImageUrl } from '@/config/site'
+import { getProxiedImageUrl } from '@/lib/r2-storage'
 
 // Helper function alias for consistency
 const getFullUrl = getAbsoluteUrl
@@ -27,7 +28,8 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
         cities:city_id(name)
       `)
       .eq('id', postId)
-      .eq('is_active', true)      .eq('project_id', 'bansgaonsandesh')      .eq('project_id', 'bansgaonsandesh')
+      .eq('is_active', true)
+      .eq('project_id', 'bansgaonsandesh')
       .single()
 
     if (error || !post) {
@@ -39,7 +41,13 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
     const title = post.title || 'Latest News'
     const description = post.caption?.substring(0, 160) || SITE_CONFIG.description
-    const imageUrl = post.media_urls?.[0] || getImageUrl(SITE_CONFIG.images.ogImage)
+    const rawImageUrl = post.media_urls?.[0]
+    // Ensure absolute URL for Open Graph (required for social media and webviews)
+    let imageUrl = getProxiedImageUrl(rawImageUrl) || getImageUrl(SITE_CONFIG.images.ogImage)
+    // Make sure it's an absolute URL
+    if (imageUrl && !imageUrl.startsWith('http')) {
+      imageUrl = getAbsoluteUrl(imageUrl)
+    }
     const cityName = post.cities?.name || 'India'
     const publishedTime = post.created_at
     const modifiedTime = post.updated_at || post.created_at

@@ -113,7 +113,7 @@ export function Providers({ children }: ProvidersProps) {
       if (authUser) {
         const { data: profile, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('*, cities(name)')
+          .select('*, cities(name), user_projects(project_id, is_active)')
           .eq('id', authUser.id)
           .maybeSingle()
 

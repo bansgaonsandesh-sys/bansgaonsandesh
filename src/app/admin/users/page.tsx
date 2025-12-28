@@ -36,7 +36,7 @@ import { motion } from 'framer-motion'
 import AdminLayout from '../../../components/layout/AdminLayout'
 import { supabaseClient } from '../../../lib/supabase-client'
 import { isAdmin } from '../../../lib/utils'
-import { adminCreateUser, adminUpdateUser, getAdminCreatedUsers, toggleUserStatus } from '@/app/actions/userActions'
+import { adminCreateUser, adminUpdateUser, getAdminCreatedUsers, toggleUserStatus, manageUserProjects } from '@/app/actions/userActions'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -57,6 +57,7 @@ interface User {
   created_at: string
   project_id: string
   cities?: { id: string; name: string }
+  user_projects?: Array<{ project_id: string; is_active: boolean }>
 }
 
 interface City {
@@ -109,7 +110,7 @@ export default function UsersManagementPage() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      // Fetch registered users with city information
+      // Fetch registered users with city information and their projects
       const { data: usersData, error: usersError } = await supabaseClient
         .from('profiles')
         .select(`
@@ -117,6 +118,10 @@ export default function UsersManagementPage() {
           cities:city_id (
             id,
             name
+          ),
+          user_projects (
+            project_id,
+            is_active
           )
         `)
         .order('created_at', { ascending: false })
@@ -152,9 +157,12 @@ export default function UsersManagementPage() {
     setEditingUser(user || null)
     setModalVisible(true)
     if (user) {
+      // Get projects from user_projects table, fallback to single project_id if needed
+      const userProjects = user.user_projects?.filter((up: { is_active: boolean; project_id: string }) => up.is_active).map((up: { project_id: string }) => up.project_id) || (user.project_id ? [user.project_id] : [])
       form.setFieldsValue({
         ...user,
-        city_id: user.cities?.id || null
+        city_id: user.cities?.id || null,
+        projects: userProjects
       })
     } else {
       form.resetFields()
@@ -189,9 +197,20 @@ export default function UsersManagementPage() {
         )
 
         if (result.success) {
-          message.success('User updated successfully')
-          setModalVisible(false)
-          fetchData()
+          // Manage user projects
+          const projectsResult = await manageUserProjects(
+            editingUser.id,
+            values.projects || [],
+            session.access_token
+          )
+
+          if (projectsResult.success) {
+            message.success('User updated successfully')
+            setModalVisible(false)
+            fetchData()
+          } else {
+            message.error(projectsResult.error || 'Failed to update user projects')
+          }
         } else {
           message.error(result.error || 'Failed to update user')
         }
@@ -237,11 +256,22 @@ export default function UsersManagementPage() {
     const result = await adminCreateUser({ ...values, accessToken: session.access_token })
     console.log('📥 Server response:', result)
     
-    if (result.success) {
-      message.success('User created successfully! Invitation email sent.')
-      createUserForm.resetFields()
-      setCreateUserModalVisible(false)
-      fetchData()
+    if (result.success && result.userId) {
+      // After user is created, add them to the project via user_projects
+      const projectsResult = await manageUserProjects(
+        result.userId,
+        [values.project_id], // Single project for new user
+        session.access_token
+      )
+
+      if (projectsResult.success) {
+        message.success('User created successfully! Invitation email sent.')
+        createUserForm.resetFields()
+        setCreateUserModalVisible(false)
+        fetchData()
+      } else {
+        message.error(projectsResult.error || 'User created but failed to assign project')
+      }
     } else {
       console.error('❌ User creation failed:', result.error)
       message.error(result.error || 'Failed to create user')
@@ -263,14 +293,16 @@ export default function UsersManagementPage() {
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name?.toLowerCase().includes(searchText.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchText.toLowerCase())
-    const matchesProject = projectFilter === 'all' || user.project_id === projectFilter
+    const matchesProject = projectFilter === 'all' || 
+      user.user_projects?.some((up: { is_active: boolean; project_id: string }) => up.is_active && up.project_id === projectFilter)
     return matchesSearch && matchesProject
   })
 
   const filteredAdminUsers = adminUsers.filter(user => {
     const matchesSearch = user.name?.toLowerCase().includes(searchText.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchText.toLowerCase())
-    const matchesProject = projectFilter === 'all' || user.project_id === projectFilter
+    const matchesProject = projectFilter === 'all' || 
+      user.user_projects?.some((up: { is_active: boolean; project_id: string }) => up.is_active && up.project_id === projectFilter)
     return matchesSearch && matchesProject
   })
 
@@ -303,13 +335,17 @@ export default function UsersManagementPage() {
       )
     },
     {
-      title: 'Project',
-      dataIndex: 'project_id',
-      key: 'project',
-      render: (projectId: string) => (
-        <Tag color={projectId === 'bansgaonsandesh' ? 'blue' : 'green'}>
-          {projectId === 'bansgaonsandesh' ? 'Bansgaon Sandesh' : 'Next Update'}
-        </Tag>
+      title: 'Projects',
+      dataIndex: 'user_projects',
+      key: 'projects',
+      render: (userProjects: Array<{ project_id: string; is_active: boolean }>) => (
+        <Space>
+          {userProjects?.filter(up => up.is_active).map(up => (
+            <Tag key={up.project_id} color={up.project_id === 'bansgaonsandesh' ? 'blue' : 'green'}>
+              {up.project_id === 'bansgaonsandesh' ? 'Bansgaon Sandesh' : 'Next Update'}
+            </Tag>
+          ))}
+        </Space>
       )
     },
     {
@@ -599,6 +635,27 @@ export default function UsersManagementPage() {
                 <Option value="female">Female</Option>
                 <Option value="other">Other</Option>
               </Select>
+            </Form.Item>
+
+            <Form.Item 
+              name="projects" 
+              label="Projects"
+              rules={[{ required: true, message: 'Please select at least one project' }]}
+            >
+              <Select 
+                mode="multiple" 
+                placeholder="Select projects"
+                options={[
+                  { 
+                    value: 'bansgaonsandesh', 
+                    label: '📰 Bansgaon Sandesh' 
+                  },
+                  { 
+                    value: 'nextupdate', 
+                    label: '🌐 Next Update' 
+                  }
+                ]}
+              />
             </Form.Item>
 
             <Divider />

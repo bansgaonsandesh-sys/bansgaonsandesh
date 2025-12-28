@@ -56,14 +56,21 @@ export default function CreatePostPage() {
       if (user?.id) {
         const { data } = await supabaseClient
           .from('profiles')
-          .select('project_id')
+          .select(`
+            project_id,
+            user_projects(project_id, is_active)
+          `)
           .eq('id', user.id)
           .single()
         
         if (data) {
           setUserProjectId(data.project_id)
           // Bansgaon Sandesh users can post to both projects
-          setCanPostToBoth(data.project_id === 'bansgaonsandesh')
+          setCanPostToBoth(
+            data.user_projects?.some((up: { is_active: boolean; project_id: string }) => 
+              up.is_active && up.project_id === 'bansgaonsandesh'
+            ) || data.project_id === 'bansgaonsandesh'
+          )
           // Set default project for form
           form.setFieldsValue({ target_project: data.project_id })
         }

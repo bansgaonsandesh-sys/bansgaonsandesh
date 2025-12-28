@@ -187,6 +187,7 @@ export function validateFileSize(buffer: Buffer, maxSizeMB: number = 10): {
 /**
  * Get R2 image URL - Uses direct public URL for better performance
  * No need to proxy through API since bucket is public
+ * Returns absolute URLs suitable for Open Graph and social media sharing
  */
 export function getProxiedImageUrl(url: string | null | undefined): string | null {
   if (!url) return null
@@ -198,7 +199,9 @@ export function getProxiedImageUrl(url: string | null | undefined): string | nul
   // If it's a relative path (starts with posts/, avatars/, etc.), prepend public URL
   if ((url.startsWith('posts/') || url.startsWith('avatars/') || url.match(/^[a-z]+\//)) && !url.includes('://')) {
     if (PUBLIC_URL) {
-      return `${PUBLIC_URL}/${url}`
+      const fullUrl = `${PUBLIC_URL}/${url}`
+      console.log('[R2] Converting relative path to absolute:', url, '->', fullUrl)
+      return fullUrl
     }
   }
   
@@ -208,7 +211,9 @@ export function getProxiedImageUrl(url: string | null | undefined): string | nul
       const urlObj = new URL(url)
       const pathWithKey = urlObj.pathname
       if (PUBLIC_URL) {
-        return `${PUBLIC_URL}${pathWithKey}`
+        const newUrl = `${PUBLIC_URL}${pathWithKey}`
+        console.log('[R2] Converting old R2 URL:', url, '->', newUrl)
+        return newUrl
       }
     } catch (e) {
       console.warn('Failed to convert old R2 URL to new public URL:', e)
@@ -230,13 +235,27 @@ export function getProxiedImageUrl(url: string | null | undefined): string | nul
       const urlObj = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost')
       const key = urlObj.searchParams.get('key')
       if (key && PUBLIC_URL) {
-        return `${PUBLIC_URL}/${key}`
+        const newUrl = `${PUBLIC_URL}/${key}`
+        console.log('[R2] Converting proxy URL to public:', url, '->', newUrl)
+        return newUrl
       }
     } catch (e) {
       console.warn('Failed to convert proxy URL to public URL:', e)
     }
   }
   
-  // If it's already a relative or external URL, return as is
+  // If it's already an absolute URL (http/https), return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  
+  // If it's a relative URL, try to make it absolute with PUBLIC_URL
+  if (PUBLIC_URL) {
+    const fullUrl = `${PUBLIC_URL}/${url.replace(/^\/+/, '')}`
+    console.log('[R2] Converting relative URL to absolute:', url, '->', fullUrl)
+    return fullUrl
+  }
+  
+  // Fallback: return as is
   return url
 }

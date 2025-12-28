@@ -93,7 +93,7 @@ export async function adminCreateUser(data: {
     }
 
     console.log('✅ User and profile created successfully!')
-    return { success: true, data: newUser.user }
+    return { success: true, userId: newUser.user.id, data: newUser.user }
   } catch (error: any) {
     console.error('Admin create user error:', error)
     return { success: false, error: error.message || 'Failed to create user' }
@@ -231,6 +231,71 @@ export async function adminUpdateUser(userId: string, data: {
   } catch (error: any) {
     console.error('Admin update user error:', error)
     return { success: false, error: error.message || 'Failed to update user' }
+  }
+}
+
+/**
+ * Admin action to manage user project assignments
+ */
+export async function manageUserProjects(userId: string, projectIds: string[], accessToken: string) {
+  try {
+    const adminClient = createAdminSupabaseClient()
+    
+    // Verify the access token and get user info
+    const { data: { user }, error: userError } = await adminClient.auth.getUser(accessToken)
+    
+    if (userError || !user || !user.email) {
+      return { success: false, error: 'Unauthorized - Please login again' }
+    }
+
+    // Check if current user is admin
+    const isAdminByEmail = isAdminEmail(user.email)
+    if (!isAdminByEmail) {
+      const { data: profile } = await adminClient
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      
+      if (profile?.role !== 'admin') {
+        return { success: false, error: 'Unauthorized - Admin access required' }
+      }
+    }
+
+    // Delete all existing user_projects for this user
+    const { error: deleteError } = await adminClient
+      .from('user_projects')
+      .delete()
+      .eq('user_id', userId)
+
+    if (deleteError) {
+      console.error('❌ Error deleting user projects:', deleteError)
+      return { success: false, error: `Failed to delete old projects: ${deleteError.message}` }
+    }
+
+    // Insert new project assignments
+    if (projectIds && projectIds.length > 0) {
+      const newUserProjects = projectIds.map(projectId => ({
+        user_id: userId,
+        project_id: projectId,
+        is_active: true
+      }))
+
+      const { error: insertError } = await adminClient
+        .from('user_projects')
+        .insert(newUserProjects)
+
+      if (insertError) {
+        console.error('❌ Error inserting user projects:', insertError)
+        return { success: false, error: `Failed to assign projects: ${insertError.message}` }
+      }
+    }
+
+    return { success: true }
+
+  } catch (error: any) {
+    console.error('❌ Error in manageUserProjects:', error)
+    return { success: false, error: error.message || 'An error occurred while managing user projects' }
   }
 }
 

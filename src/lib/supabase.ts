@@ -414,7 +414,9 @@ export type Database = {
 }
 
 // Helper types
-export type Profile = Database['public']['Tables']['profiles']['Row']
+export type Profile = Database['public']['Tables']['profiles']['Row'] & {
+  user_projects?: Array<{ project_id: string; is_active: boolean }>
+}
 export type City = Database['public']['Tables']['cities']['Row']
 export type Post = Database['public']['Tables']['posts']['Row']
 export type PostLike = Database['public']['Tables']['post_likes']['Row']
