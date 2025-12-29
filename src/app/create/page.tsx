@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Button, Upload, Input, Select, Card, Typography, Form, App } from 'antd'
+import { Button, Upload, Input, Select, Card, Typography, Form, App, Checkbox } from 'antd'
 import { PlusOutlined, SendOutlined, EnvironmentOutlined } from '@ant-design/icons'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
@@ -41,6 +41,7 @@ export default function CreatePostPage() {
   const previewRequestRef = useRef(0)
   const [userProjectId, setUserProjectId] = useState<string>('')
   const [canPostToBoth, setCanPostToBoth] = useState(false)
+  const [postToBothPlatforms, setPostToBothPlatforms] = useState(false)
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -66,13 +67,14 @@ export default function CreatePostPage() {
         if (data) {
           setUserProjectId(data.project_id)
           // Bansgaon Sandesh users can post to both projects
-          setCanPostToBoth(
-            data.user_projects?.some((up: { is_active: boolean; project_id: string }) => 
-              up.is_active && up.project_id === 'bansgaonsandesh'
-            ) || data.project_id === 'bansgaonsandesh'
-          )
-          // Set default project for form
-          form.setFieldsValue({ target_project: data.project_id })
+          const canPost = data.user_projects?.some((up: { is_active: boolean; project_id: string }) => 
+            up.is_active && up.project_id === 'bansgaonsandesh'
+          ) || data.project_id === 'bansgaonsandesh'
+          setCanPostToBoth(canPost)
+          
+          // Set default to bansgaonsandesh for multi-project users, otherwise their project
+          const defaultProject = canPost ? 'bansgaonsandesh' : data.project_id
+          form.setFieldsValue({ target_project: defaultProject })
         }
       }
     }
@@ -294,40 +296,50 @@ export default function CreatePostPage() {
         mediaType = typeSource.startsWith('video/') ? 'video' : 'image'
       }
 
-      // Determine target project
-      let targetProjectId = userProjectId
+      // Determine target project(s)
+      const targetProjects: string[] = []
       
-      // If user is from Bansgaon Sandesh, they can choose which project
-      if (canPostToBoth && values.target_project) {
-        targetProjectId = values.target_project
-      }
-      // If user is from Next Update, force to nextupdate
-      else if (userProjectId === 'nextupdate') {
-        targetProjectId = 'nextupdate'
+      if (postToBothPlatforms && canPostToBoth) {
+        // Post to both platforms
+        targetProjects.push('bansgaonsandesh', 'nextupdate')
+      } else if (canPostToBoth && values.target_project) {
+        // Single project selected
+        targetProjects.push(values.target_project)
+      } else {
+        // User's default project
+        targetProjects.push(userProjectId)
       }
 
-      // Create post
-      const { data: inserted, error } = await supabaseClient
-        .from('posts')
-        .insert({
-          user_id: user!.id,
-          city_id: selectedCityData.id,
-          project_id: targetProjectId,
-          title: values.title && values.title.trim().length > 0
-            ? values.title.trim()
-            : (content ? content.trim().split(/\s+/).slice(0, 12).join(' ') : null),
-          caption: content && content.trim().length > 0 ? content : null,
-          media_urls: mediaUrls,
-          media_type: mediaType,
-          is_active: true
-        })
-        .select('*')
+      // Create post(s)
+      const postData = {
+        user_id: user!.id,
+        city_id: selectedCityData.id,
+        title: values.title && values.title.trim().length > 0
+          ? values.title.trim()
+          : (content ? content.trim().split(/\s+/).slice(0, 12).join(' ') : null),
+        caption: content && content.trim().length > 0 ? content : null,
+        media_urls: mediaUrls,
+        media_type: mediaType,
+        is_active: true
+      }
 
-      console.debug('[CreatePost] Insert response', { inserted, error })
-      if (error) {
+      const insertPromises = targetProjects.map(projectId => 
+        supabaseClient
+          .from('posts')
+          .insert({ ...postData, project_id: projectId })
+          .select('*')
+      )
+
+      const results = await Promise.all(insertPromises)
+      const errors = results.filter(r => r.error)
+      
+      console.debug('[CreatePost] Insert response', results)
+      if (errors.length > 0) {
         messageApi.error('Failed to create post')
         return
       }
+      
+      const inserted = results[0].data
 
       messageApi.success('Post created successfully! 🎉')
 
@@ -465,26 +477,46 @@ export default function CreatePostPage() {
 
               {/* Project Selection - Only for Bansgaon Sandesh users */}
               {canPostToBoth && (
-                <Form.Item
-                  name="target_project"
-                  label="Post To"
-                  rules={[{ required: true, message: 'Please select a project' }]}
-                >
-                  <Select
-                    placeholder="Select project"
-                    className="rounded-xl"
-                    size="large"
+                <>
+                  <Form.Item
+                    name="target_project"
+                    label="Post To"
+                    rules={[{ required: !postToBothPlatforms, message: 'Please select a project' }]}
                   >
-                    <Option value="bansgaonsandesh">
-                      <span className="text-blue-600">📰 Bansgaon Sandesh</span>
-                      <div className="text-xs text-gray-500">News Agency</div>
-                    </Option>
-                    <Option value="nextupdate">
-                      <span className="text-green-600">🌐 Next Update</span>
-                      <div className="text-xs text-gray-500">Social Platform</div>
-                    </Option>
-                  </Select>
-                </Form.Item>
+                    <Select
+                      placeholder="Select project"
+                      className="rounded-xl"
+                      size="large"
+                      disabled={postToBothPlatforms}
+                    >
+                      <Option value="bansgaonsandesh">
+                        <span className="text-blue-600">📰 Bansgaon Sandesh</span>
+                        <div className="text-xs text-gray-500">News Agency</div>
+                      </Option>
+                      <Option value="nextupdate">
+                        <span className="text-green-600">🌐 Next Update</span>
+                        <div className="text-xs text-gray-500">Social Platform</div>
+                      </Option>
+                    </Select>
+                  </Form.Item>
+                  
+                  <Form.Item>
+                    <Checkbox
+                      checked={postToBothPlatforms}
+                      onChange={(e) => setPostToBothPlatforms(e.target.checked)}
+                      className="text-sm"
+                    >
+                      <span className="text-gray-700">
+                        📢 Post to both platforms simultaneously
+                      </span>
+                    </Checkbox>
+                    {postToBothPlatforms && (
+                      <div className="mt-2 text-xs text-blue-600 bg-blue-50 p-2 rounded-lg">
+                        ✓ This post will be published on both Bansgaon Sandesh and Next Update
+                      </div>
+                    )}
+                  </Form.Item>
+                </>
               )}
 
               {/* Action Buttons */}
