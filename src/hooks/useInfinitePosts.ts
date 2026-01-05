@@ -53,8 +53,8 @@ export function useInfinitePosts(cityId: string | null, userId: string | null) {
           return { data: [], nextPage: null, hasMore: false }
         }
 
-        // Fetch posts with pagination
-        const { data: postsData, error } = await supabaseClient
+        // Fetch posts with pagination for selected city
+        let { data: postsData, error } = await supabaseClient
           .from('posts')
           .select(`
             *,
@@ -75,6 +75,36 @@ export function useInfinitePosts(cityId: string | null, userId: string | null) {
         if (error) {
           debugLogger.queryError(queryKey, error, pageParam)
           throw error
+        }
+
+        // If selected city has no posts, fallback to all cities
+        if (!postsData || postsData.length === 0) {
+          console.log(`ℹ️ No posts in ${cityId}, fetching from all cities`)
+          
+          const { data: allCityPosts, error: allCityError } = await supabaseClient
+            .from('posts')
+            .select(`
+              *,
+              profiles:user_id (
+                id,
+                name,
+                avatar_url,
+                is_verified,
+                has_blue_tick
+              )
+            `)
+            .eq('is_active', true)
+            .eq('project_id', 'bansgaonsandesh')
+            .order('created_at', { ascending: false })
+            .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1)
+
+          if (allCityError) {
+            debugLogger.queryError(queryKey, allCityError, pageParam)
+            throw allCityError
+          }
+
+          postsData = allCityPosts
+          console.log(`✅ Fallback: Fetched ${allCityPosts?.length || 0} posts from all cities`)
         }
 
         debugLogger.querySuccess(queryKey, postsData?.length || 0, pageParam)
@@ -155,7 +185,8 @@ export function useInfiniteTrendingPosts(cityId: string | null, userId: string |
       const sevenDaysAgo = new Date()
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-      const { data: postsData } = await supabaseClient
+      // Try to fetch trending posts from selected city first
+      let { data: postsData } = await supabaseClient
         .from('posts')
         .select(`
           *,
@@ -173,6 +204,32 @@ export function useInfiniteTrendingPosts(cityId: string | null, userId: string |
         .gte('created_at', sevenDaysAgo.toISOString())
         .order('likes_count', { ascending: false })
         .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1)
+
+      // If no trending posts in selected city, fallback to all cities
+      if (!postsData || postsData.length === 0) {
+        console.log(`ℹ️ No trending posts in ${cityId}, fetching from all cities`)
+        
+        const { data: allCityPosts } = await supabaseClient
+          .from('posts')
+          .select(`
+            *,
+            profiles:user_id (
+              id,
+              name,
+              avatar_url,
+              is_verified,
+              has_blue_tick
+            )
+          `)
+          .eq('is_active', true)
+          .eq('project_id', 'bansgaonsandesh')
+          .gte('created_at', sevenDaysAgo.toISOString())
+          .order('likes_count', { ascending: false })
+          .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1)
+
+        postsData = allCityPosts
+        console.log(`✅ Fallback: Fetched ${allCityPosts?.length || 0} trending posts from all cities`)
+      }
 
       if (postsData && postsData.length > 0 && userId) {
         const postIds = postsData.map(p => p.id)

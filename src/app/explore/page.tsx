@@ -79,7 +79,8 @@ export default function ExplorePage() {
       const sevenDaysAgo = new Date()
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-      const { data: postsData } = await supabaseClient
+      // Try to fetch trending posts from selected city first
+      let { data: postsData } = await supabaseClient
         .from('posts')
         .select(`
           *,
@@ -97,6 +98,29 @@ export default function ExplorePage() {
         .gte('created_at', sevenDaysAgo.toISOString())
         .order('likes_count', { ascending: false })
         .limit(20)
+
+      // If no trending posts in selected city, fallback to all cities
+      if (!postsData || postsData.length === 0) {
+        const { data: allCityPosts } = await supabaseClient
+          .from('posts')
+          .select(`
+            *,
+            profiles:user_id (
+              id,
+              name,
+              avatar_url,
+              is_verified,
+              has_blue_tick
+            )
+          `)
+          .eq('is_active', true)
+          .eq('project_id', 'bansgaonsandesh')
+          .gte('created_at', sevenDaysAgo.toISOString())
+          .order('likes_count', { ascending: false })
+          .limit(20)
+
+        postsData = allCityPosts
+      }
 
       if (!postsData || postsData.length === 0) return []
 
