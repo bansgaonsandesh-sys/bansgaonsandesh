@@ -1,6 +1,6 @@
 'use client';
 
-import { House, Compass, CirclePlus, Wallet, User } from 'lucide-react';
+import { House, Compass, CirclePlus, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { NavigationTab } from '@/types/enums';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,6 @@ const navItems = [
   { id: NavigationTab.HOME, icon: House, label: 'Home' },
   { id: NavigationTab.EXPLORE, icon: Compass, label: 'Explore' },
   { id: NavigationTab.ADD_POST, icon: CirclePlus, label: 'Add Post' },
-  { id: NavigationTab.WALLET, icon: Wallet, label: 'Wallet' },
   { id: NavigationTab.PROFILE, icon: User, label: 'Profile' },
 ];
 
