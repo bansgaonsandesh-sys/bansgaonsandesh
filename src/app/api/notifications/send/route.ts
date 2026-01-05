@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-server';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 // This will be called when a new post is created
 export async function POST(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Get the post author's name
     const { data: authorData } = await supabase

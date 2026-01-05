@@ -21,13 +21,8 @@ const CHANNEL_URL = `https://www.youtube.com/${CHANNEL_HANDLE}`
  */
 export async function fetchYouTubeVideos(): Promise<YouTubeVideo[]> {
   try {
-    // For YouTube RSS feed, we need the channel ID
-    // You can get channel ID from: https://www.youtube.com/channel_switcher
-    // Or from the channel page source code
-    
-    // Using a hardcoded channel ID for now
-    // Replace 'UCxxxxxxxxxxxxxxxxx' with your actual channel ID
-    const channelId = 'UCR0j7h4_vxqEbYE1O-kIZyQ' // Replace with actual channel ID
+    // Channel ID for @thebansgaonsandesh
+    const channelId = 'UCv5rU0e-FQbeLdTWGffzWsw'
     
     const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
     

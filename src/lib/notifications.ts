@@ -30,7 +30,7 @@ export async function requestNotificationPermission(): Promise<string | null> {
 
       // Get FCM token
       const token = await getToken(messaging, {
-        vapidKey: 'YOUR_VAPID_KEY' // You'll need to generate this in Firebase Console
+        vapidKey: 'BA_m9D2j0Dj4YcaEd3-a1s18V_5tMg4zTXoAnM59SHZwZSz_yEaI2Phk3drpDrPhf_sa3OFnOrQwsehIc8m5tpE'
       });
       
       if (token) {
