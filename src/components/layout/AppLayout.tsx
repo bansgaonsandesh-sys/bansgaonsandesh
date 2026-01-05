@@ -31,6 +31,7 @@ import AdminPopup from '../ads/AdminPopup'
 import { fetchActivePopups, trackAdImpression, trackAdClick } from '../../app/actions/adActions'
 
 import Sidebar from './Sidebar'
+import NotificationPrompt from '../shared/NotificationPrompt'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -401,6 +402,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
           onClick={handlePopupClick}
         />
       )}
+
+      {/* Notification Prompt */}
+      {!isGuest && user?.id && <NotificationPrompt userId={user.id} />}
     </div>
   )
 }

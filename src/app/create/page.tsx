@@ -340,6 +340,26 @@ export default function CreatePostPage() {
       }
       
       const inserted = results[0].data
+      const createdPost = inserted?.[0]
+
+      // Send notifications to all users
+      if (createdPost) {
+        try {
+          await fetch('/api/notifications/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              postId: createdPost.id,
+              userId: user!.id,
+              title: createdPost.title || createdPost.caption,
+              cityName: selectedCityData.name
+            })
+          });
+        } catch (notifError) {
+          console.error('Failed to send notifications:', notifError);
+          // Don't fail the post creation if notifications fail
+        }
+      }
 
       messageApi.success('Post created successfully! 🎉')
 
