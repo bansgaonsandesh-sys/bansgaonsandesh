@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
@@ -17,6 +17,41 @@ export default function PostDetail({ post }: PostDetailProps) {
   const [likes, setLikes] = useState(post.likes_count || 0)
   const [isLiked, setIsLiked] = useState(false)
   const [showComments, setShowComments] = useState(false)
+  const [relatedPosts, setRelatedPosts] = useState<any[]>([])
+
+  useEffect(() => {
+    fetchRelatedPosts()
+  }, [post.id])
+
+  const fetchRelatedPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          id,
+          title,
+          caption,
+          media_urls,
+          media_type,
+          likes_count,
+          created_at,
+          profiles:user_id(name, avatar_url),
+          cities:city_id(name)
+        `)
+        .eq('is_active', true)
+        .eq('project_id', 'bansgaonsandesh')
+        .eq('city_id', post.city_id)
+        .neq('id', post.id)
+        .order('created_at', { ascending: false })
+        .limit(4)
+
+      if (!error && data) {
+        setRelatedPosts(data)
+      }
+    } catch (error) {
+      console.error('Error fetching related posts:', error)
+    }
+  }
 
   const handleLike = async () => {
     try {
@@ -266,13 +301,54 @@ export default function PostDetail({ post }: PostDetailProps) {
           )}
         </div>
 
-        {/* Related Posts - Placeholder */}
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Related Posts</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Add related posts here */}
+        {/* Related Posts */}
+        {relatedPosts.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-bold mb-4">Related News from {post.cities?.name}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {relatedPosts.map((relatedPost) => (
+                <Link
+                  key={relatedPost.id}
+                  href={`/post/${relatedPost.id}`}
+                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden border"
+                >
+                  {relatedPost.media_urls?.[0] && (
+                    <div className="relative w-full h-48">
+                      <Image
+                        src={relatedPost.media_urls[0]}
+                        alt={relatedPost.title || 'News image'}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2">
+                      {relatedPost.title || relatedPost.caption?.substring(0, 100)}
+                    </h3>
+                    {relatedPost.caption && !relatedPost.title && (
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                        {relatedPost.caption}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Heart className="w-3 h-3" />
+                        {relatedPost.likes_count || 0}
+                      </span>
+                      <span>
+                        {formatDistanceToNow(new Date(relatedPost.created_at), {
+                          addSuffix: true,
+                          locale: hi,
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </article>
   )
