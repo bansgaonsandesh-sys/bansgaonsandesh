@@ -628,7 +628,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
                 <ShareButton
                   postId={post.id}
                   title={post.title || `${post.profiles.name}'s post`}
-                  description={post.caption}
+                  description={post.caption || undefined}
                   imageUrl={post.media_urls?.[0]}
                   author={post.profiles.name}
                   variant="text"
