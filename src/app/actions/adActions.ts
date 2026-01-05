@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { supabaseClient } from '../../lib/supabase-client'
 import { revalidatePath } from 'next/cache'
 import { siteConfig } from '@/config/site'
+import { isAdmin } from '@/lib/utils'
 
 const AD_DAILY_RATE = 2000
 
@@ -204,13 +205,7 @@ export async function fetchPendingAds(accessToken: string) {
     const { data: { user } } = await authClient.auth.getUser()
     console.log('🔵 [fetchPendingAds] User email:', user?.email)
 
-    // Admin check email matching - MUST match AdminAdsPage
-    const adminEmails = [
-      siteConfig.contact.email,
-      `admin@${siteConfig.domain}`,
-      `support@${siteConfig.domain}`
-    ]
-    if (!user || !user.email || !adminEmails.includes(user.email.toLowerCase())) {
+    if (!user || !user.email || !isAdmin(user.email)) {
         console.log('❌ [fetchPendingAds] Not an admin')
         return []
     }
@@ -252,12 +247,7 @@ export async function fetchAllAds(accessToken: string) {
     })
 
     const { data: { user } } = await authClient.auth.getUser()
-    const adminEmails = [
-      siteConfig.contact.email,
-      `admin@${siteConfig.domain}`,
-      `support@${siteConfig.domain}`
-    ]
-    if (!user || !user.email || !adminEmails.includes(user.email.toLowerCase())) {
+    if (!user || !user.email || !isAdmin(user.email)) {
         return []
     }
 
@@ -300,12 +290,7 @@ export async function updateAdStatus(
 
     // Verify admin
     const { data: { user } } = await authClient.auth.getUser()
-    const adminEmails = [
-      siteConfig.contact.email,
-      `admin@${siteConfig.domain}`,
-      `support@${siteConfig.domain}`
-    ]
-    if (!user || !user.email || !adminEmails.includes(user.email.toLowerCase())) {
+    if (!user || !user.email || !isAdmin(user.email)) {
         return { success: false, error: 'Unauthorized' }
     }
 
@@ -383,12 +368,7 @@ export async function fetchAllSystemAds(accessToken: string) {
 
     // Admin Check
     const { data: { user } } = await authClient.auth.getUser()
-    const adminEmails = [
-      siteConfig.contact.email,
-      `admin@${siteConfig.domain}`,
-      `support@${siteConfig.domain}`
-    ]
-    if (!user || !user.email || !adminEmails.includes(user.email.toLowerCase())) {
+    if (!user || !user.email || !isAdmin(user.email)) {
         return []
     }
 
@@ -413,12 +393,7 @@ export async function createSystemAd(accessToken: string, adData: any) {
     })
 
     const { data: { user } } = await authClient.auth.getUser()
-    const adminEmails = [
-      siteConfig.contact.email,
-      `admin@${siteConfig.domain}`,
-      `support@${siteConfig.domain}`
-    ]
-    if (!user || !user.email || !adminEmails.includes(user.email.toLowerCase())) {
+    if (!user || !user.email || !isAdmin(user.email)) {
         return { success: false, error: 'Unauthorized: Admin only' }
     }
 
@@ -481,12 +456,7 @@ export async function updateSystemAd(accessToken: string, adId: string, updates:
     })
 
     const { data: { user } } = await authClient.auth.getUser()
-    const adminEmails = [
-      siteConfig.contact.email,
-      `admin@${siteConfig.domain}`,
-      `support@${siteConfig.domain}`
-    ]
-    if (!user || !user.email || !adminEmails.includes(user.email.toLowerCase())) {
+    if (!user || !user.email || !isAdmin(user.email)) {
         return { success: false, error: 'Unauthorized: Admin only' }
     }
 
