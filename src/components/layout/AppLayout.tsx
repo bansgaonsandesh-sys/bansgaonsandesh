@@ -17,7 +17,8 @@ import {
   BellOutlined,
   LogoutOutlined,
   RocketOutlined,
-  SearchOutlined
+  SearchOutlined,
+  YoutubeOutlined
 } from '@ant-design/icons'
 import { Badge, Avatar, Dropdown, Space, message, Input } from 'antd'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -84,6 +85,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const navigationItems = isGuest ? [
     { key: '/', icon: HomeOutlined, label: 'Home' },
     { key: '/explore', icon: CompassOutlined, label: 'Explore' },
+    { key: '/videos', icon: YoutubeOutlined, label: 'Videos' },
     {
       key: '/auth/login',
       icon: UserOutlined,
@@ -93,6 +95,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   ] : [
     { key: '/', icon: HomeOutlined, label: 'Home' },
     { key: '/explore', icon: CompassOutlined, label: 'Explore' },
+    { key: '/videos', icon: YoutubeOutlined, label: 'Videos' },
     // Only show Create button for bansgaonsandesh users
     ...(user?.user_projects?.some(up => up.is_active && up.project_id === 'bansgaonsandesh') || user?.project_id === 'bansgaonsandesh' ? [{ key: '/create', icon: PlusCircleOutlined, label: 'Create' }] : []),
     { key: '/wallet', icon: WalletOutlined, label: 'Wallet' },

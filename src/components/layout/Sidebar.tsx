@@ -13,7 +13,8 @@ import {
     LogoutOutlined,
     LoginOutlined,
     EnvironmentOutlined,
-    SearchOutlined
+    SearchOutlined,
+    YoutubeOutlined
 } from '@ant-design/icons'
 import { message, Modal, Dropdown, Input } from 'antd'
 import { motion } from 'framer-motion'
@@ -68,6 +69,7 @@ export default function Sidebar() {
     const navigationItems = isGuest ? [
         { key: '/', icon: HomeOutlined, label: 'Home' },
         { key: '/explore', icon: CompassOutlined, label: 'Explore' },
+        { key: '/videos', icon: YoutubeOutlined, label: 'Videos' },
         {
             key: 'login',
             icon: LoginOutlined,
@@ -77,6 +79,7 @@ export default function Sidebar() {
     ] : [
         { key: '/', icon: HomeOutlined, label: 'Home' },
         { key: '/explore', icon: CompassOutlined, label: 'Explore' },
+        { key: '/videos', icon: YoutubeOutlined, label: 'Videos' },
         // Only show Create button for bansgaonsandesh users
         ...(user?.user_projects?.some(up => up.is_active && up.project_id === 'bansgaonsandesh') || user?.project_id === 'bansgaonsandesh' ? [{ key: '/create', icon: PlusCircleOutlined, label: 'Create' }] : []),
         { key: '/wallet', icon: WalletOutlined, label: 'Wallet' },
