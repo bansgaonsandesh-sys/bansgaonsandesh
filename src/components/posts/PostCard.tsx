@@ -26,6 +26,7 @@ import LinkifiedText from '../shared/LinkifiedText'
 import { getProxiedImageUrl } from '../../lib/r2-storage'
 import { PostHeader } from './PostHeader'
 import { PostEditModal } from './PostEditModal'
+import ShareButton from '../shared/ShareButton'
 
 const { Text, Paragraph } = Typography
 
@@ -624,14 +625,17 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
               </motion.div>
 
               <motion.div whileTap={{ scale: 0.9 }}>
-                <Button
-                  type="text"
-                  icon={<ShareAltOutlined />}
-                  onClick={handleShare}
+                <ShareButton
+                  postId={post.id}
+                  title={post.title || `${post.profiles.name}'s post`}
+                  description={post.caption}
+                  imageUrl={post.media_urls?.[0]}
+                  author={post.profiles.name}
+                  variant="text"
+                  showCount={true}
+                  count={sharesCount}
                   className="flex items-center text-gray-600 hover:bg-green-50"
-                >
-                  {formatNumber(sharesCount)}
-                </Button>
+                />
               </motion.div>
             </Space>
           </div>

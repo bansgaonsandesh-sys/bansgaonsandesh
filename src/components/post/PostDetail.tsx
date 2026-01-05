@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { hi } from 'date-fns/locale'
 import { Heart, MessageCircle, Share2, MapPin, Calendar, Eye } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import ShareButton from '@/components/shared/ShareButton'
 
 interface PostDetailProps {
   post: any
@@ -207,13 +208,17 @@ export default function PostDetail({ post }: PostDetailProps) {
               <MessageCircle className="w-5 h-5" />
               Comment
             </button>
-            <button
-              onClick={handleShare}
+            <ShareButton
+              postId={post.id}
+              title={post.title || 'Check out this post'}
+              description={post.caption}
+              imageUrl={post.media_urls?.[0]}
+              author={post.profiles?.name}
+              showText={true}
+              variant="plain"
+              iconType="lucide"
               className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              <Share2 className="w-5 h-5" />
-              Share
-            </button>
+            />
           </div>
 
           {/* Comments Section */}
