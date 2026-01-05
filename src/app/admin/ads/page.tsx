@@ -51,6 +51,7 @@ import {
     updateSystemAd
 } from '../../actions/adActions'
 import { getProxiedImageUrl, uploadToR2, generateFileKey } from '../../../lib/r2-storage'
+import { isAdmin } from '../../../lib/utils'
 
 const { Title, Text } = Typography
 const { TextArea } = Input
@@ -133,9 +134,8 @@ export default function AdminAdsPage() {
             }
 
             const email = session.user.email || ''
-            const adminEmails = ['admin@bansgaonsandesh.com']
-            if (!adminEmails.includes(email.toLowerCase())) {
-                router.replace('/')
+            if (!isAdmin(email)) {
+                router.replace('/auth/login')
                 return
             }
 
