@@ -62,6 +62,12 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
   const handleShare = async () => {
     try {
+      if (!share || !sharePost) {
+        console.error('Share functions not available');
+        message.error('Share is not available');
+        return;
+      }
+      
       if (customData) {
         await share(customData);
       } else if (postId && title) {
@@ -77,6 +83,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
       }
     } catch (err) {
       console.error('Share error:', err);
+      // Error already handled by useNativeShare hook
     }
   };
 

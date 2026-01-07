@@ -128,7 +128,11 @@ export function Providers({ children }: ProvidersProps) {
             if (!selectedCity) {
               console.log('📍 Setting default city from user profile:', profile.cities.name)
               setSelectedCity(profile.cities.name)
-              localStorage.setItem('selectedCity', profile.cities.name)
+              try {
+                localStorage.setItem('selectedCity', profile.cities.name)
+              } catch (e) {
+                console.warn('Failed to save city to localStorage:', e)
+              }
               setIsCityReady(true) // City is now ready
             }
           }
@@ -145,12 +149,17 @@ export function Providers({ children }: ProvidersProps) {
         setUserCity(null)
 
         // For guests, check if we have a saved city
-        const savedCity = localStorage.getItem('selectedCity')
-        if (savedCity) {
-          setSelectedCity(savedCity)
-          setIsCityReady(true)
-        } else {
-          setIsCityReady(false) // Will show city selection
+        try {
+          const savedCity = localStorage.getItem('selectedCity')
+          if (savedCity) {
+            setSelectedCity(savedCity)
+            setIsCityReady(true)
+          } else {
+            setIsCityReady(false) // Will show city selection
+          }
+        } catch (e) {
+          console.warn('Failed to access localStorage:', e)
+          setIsCityReady(false)
         }
 
         setIsLoading(false) // Important: Always set loading to false for guests
@@ -178,11 +187,16 @@ export function Providers({ children }: ProvidersProps) {
         console.log('🚀 Initializing app...')
 
         // Step 1: Load saved city from localStorage FIRST
-        const savedCity = localStorage.getItem('selectedCity')
-        if (savedCity && mounted) {
-          console.log('📍 Restored saved city:', savedCity)
-          setSelectedCity(savedCity)
-          setIsCityReady(true) // City is ready immediately from localStorage
+        let savedCity: string | null = null
+        try {
+          savedCity = localStorage.getItem('selectedCity')
+          if (savedCity && mounted) {
+            console.log('📍 Restored saved city:', savedCity)
+            setSelectedCity(savedCity)
+            setIsCityReady(true) // City is ready immediately from localStorage
+          }
+        } catch (e) {
+          console.warn('Failed to access localStorage:', e)
         }
 
         // Step 2: Fetch user data (this handles both auth users and guests)
@@ -246,7 +260,11 @@ export function Providers({ children }: ProvidersProps) {
   const handleSetSelectedCity = (city: string) => {
     console.log('📍 Setting city:', city)
     setSelectedCity(city)
-    localStorage.setItem('selectedCity', city)
+    try {
+      localStorage.setItem('selectedCity', city)
+    } catch (e) {
+      console.warn('Failed to save city to localStorage:', e)
+    }
     setIsCityReady(true) // Mark city as ready when manually set
   }
 

@@ -50,12 +50,21 @@ export default function HomePage() {
 
   // Fetch Ads
   useEffect(() => {
-    import('./actions/adActions').then(async ({ fetchActiveUserAds, fetchActiveBanners }) => {
-      const userAds = await fetchActiveUserAds()
-      const banners = await fetchActiveBanners()
-      setAds(userAds)
-      setBannerAds(banners)
-    })
+    const fetchAds = async () => {
+      try {
+        const { fetchActiveUserAds, fetchActiveBanners } = await import('./actions/adActions')
+        const userAds = await fetchActiveUserAds()
+        const banners = await fetchActiveBanners()
+        setAds(userAds || [])
+        setBannerAds(banners || [])
+      } catch (error) {
+        console.error('Failed to fetch ads:', error)
+        // Set empty arrays on error to prevent crashes
+        setAds([])
+        setBannerAds([])
+      }
+    }
+    fetchAds()
   }, [])
 
   // No longer redirect to auth - allow public access
@@ -180,7 +189,13 @@ export default function HomePage() {
                 </p>
                 {user && user.is_verified && (
                   <button
-                    onClick={() => router.push('/ads/create')}
+                    onClick={() => {
+                      try {
+                        router.push('/ads/create')
+                      } catch (error) {
+                        console.error('Navigation error:', error)
+                      }
+                    }}
                     className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-xl hover:opacity-90 transition-opacity mt-2"
                   >
                     Create Ads

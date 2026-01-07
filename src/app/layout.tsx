@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "../lib/providers";
 import AppLayout from "../components/layout/AppLayout";
+import ErrorBoundary from "../components/shared/ErrorBoundary";
 import { siteConfig as SITE_CONFIG, getAbsoluteUrl, getImageUrl } from "@/config/site";
 
 export const dynamic = 'force-dynamic'

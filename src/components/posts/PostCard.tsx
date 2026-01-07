@@ -361,7 +361,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
 
   // Helper function to create short share content
   const createShareContent = (caption: string | null, title?: string | null): string => {
-    const heading = title || `${post.profiles.name}'s post`
+    const heading = title || `${post.profiles?.name || 'User'}'s post`
 
     if (!caption) {
       return `${heading}...`
@@ -388,7 +388,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
 
       // Use mobile bridge for native sharing - we're always in WebView
       const shareData = {
-        title: `${post.profiles.name}'s post on ${SITE_CONFIG.name}`,
+        title: `${post.profiles?.name || 'User'}'s post on ${SITE_CONFIG.name}`,
         text: `${shortContent}\n\n📰 Read full news & connect with your community!`,
         url: `${SITE_CONFIG.url}/post/${post.id}`,
       }
@@ -655,8 +655,8 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
 
           {/* Quick Comment */}
           <div className="flex items-center space-x-2">
-            <AntAvatar size={24} src={getProxiedImageUrl(post.profiles.avatar_url)}>
-              {post.profiles.name[0]?.toUpperCase()}
+            <AntAvatar size={24} src={getProxiedImageUrl(post.profiles?.avatar_url)}>
+              {post.profiles?.name?.[0]?.toUpperCase() || 'U'}
             </AntAvatar>
             <div className="flex-1 flex items-center space-x-2">
               <Input
@@ -777,8 +777,8 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <AntAvatar size={32} src={getProxiedImageUrl(post.profiles.avatar_url)}>
-                  {post.profiles.name[0]?.toUpperCase()}
+                <AntAvatar size={32} src={getProxiedImageUrl(post.profiles?.avatar_url)}>
+                  {post.profiles?.name?.[0]?.toUpperCase() || 'U'}
                 </AntAvatar>
                 <div className="flex-1 flex items-center space-x-2">
                   <Input

@@ -109,23 +109,32 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
 
   const handleAuthAction = (action: string) => {
-    // Redirect to auth with return path
-    const returnPath = pathname !== '/auth/login' && pathname !== '/auth/register' ? pathname : '/'
-    const authPath = action === 'register' ? '/auth/register' : '/auth/login'
-    router.push(`${authPath}?returnTo=${encodeURIComponent(returnPath)}`)
+    try {
+      // Redirect to auth with return path
+      const returnPath = pathname !== '/auth/login' && pathname !== '/auth/register' ? pathname : '/'
+      const authPath = action === 'register' ? '/auth/register' : '/auth/login'
+      router.push(`${authPath}?returnTo=${encodeURIComponent(returnPath)}`)
+    } catch (error) {
+      console.error('Error navigating to auth:', error)
+      // Fallback navigation
+      router.push('/auth/login')
+    }
   }
 
   const handleLogout = async () => {
     try {
       await supabaseClient.auth.signOut()
+      message.success('Logged out')
     } catch (e) {
-      // ignore
+      console.error('Logout error:', e)
+      message.error('Failed to log out')
     } finally {
       try {
         // Keep selected city when logging out
         // localStorage.removeItem('selectedCity') 
-      } catch { }
-      message.success('Logged out')
+      } catch (err) {
+        console.warn('localStorage access failed:', err)
+      }
       // Stay on current page instead of redirecting
     }
   }
@@ -315,7 +324,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       size={32}
                       className="border-2 border-primary"
                     >
-                      {user?.name?.[0]?.toUpperCase()}
+                      {user?.name?.[0]?.toUpperCase() || 'U'}
                     </Avatar>
                   )}
                 </div>
