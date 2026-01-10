@@ -1,0 +1,123 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║     🚀 SUPABASE MIGRATION - QUICK REFERENCE CARD 🚀           ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+📦 WHAT'S READY TO MIGRATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 2,073 posts (news articles)
+✅ 106 user profiles  
+✅ 128 cities
+✅ 50 database migrations
+✅ All functions & triggers
+✅ All RLS security policies
+
+📝 3-STEP MIGRATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: EXPORT 📥
+─────────────────
+Get OLD Supabase DB URL:
+Dashboard > Settings > Database > Connection string
+
+export SUPABASE_DB_URL="postgresql://postgres:PASSWORD@db.OLD.supabase.co:5432/postgres"
+./export_supabase_db.sh
+
+⏱️ Takes: 2-3 minutes
+
+
+STEP 2: CREATE NEW PROJECT 🆕
+──────────────────────────────
+1. Go to supabase.com/dashboard
+2. Click "New Project"
+3. SAVE these:
+   • Project URL: https://XXX.supabase.co
+   • Anon key: eyJhbGc...
+   • Service key: eyJhbGc...
+   • DB password: (your choice)
+
+⏱️ Takes: 2 minutes
+
+
+STEP 3: IMPORT 📤
+─────────────────
+Get NEW Supabase DB URL:
+Dashboard > Settings > Database > Connection string
+
+export NEW_SUPABASE_DB_URL="postgresql://postgres:NEW_PASSWORD@db.NEW.supabase.co:5432/postgres"
+./import_to_new_supabase.sh
+
+Type: yes
+
+⏱️ Takes: 3-5 minutes
+
+
+✅ VERIFY MIGRATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Check counts match:
+  cities: 128 ✓
+  profiles: 106 ✓  
+  posts: 2,073 ✓
+
+
+⚙️  UPDATE APP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Update .env.local:
+   NEXT_PUBLIC_SUPABASE_URL=https://NEW.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=new_key
+   SUPABASE_SERVICE_ROLE_KEY=new_key
+
+2. Update Vercel:
+   Dashboard > Settings > Environment Variables
+   (Update all 3 Supabase vars)
+
+3. Enable Auth (New Supabase Dashboard):
+   Authentication > Providers > Email ✓
+   Authentication > URL Config:
+   • Site URL: https://bansgaonsandesh.com
+   • Redirect: https://bansgaonsandesh.com/**
+
+
+🎯 TESTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+npm run dev
+• Try login ✓
+• Check posts ✓
+• Test likes/comments ✓
+• Verify wallet ✓
+
+
+⚠️  IMPORTANT NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Media files in R2 (not Supabase) → Still work! ✅
+• Users need to reset passwords (Auth is separate)
+• Keep old Supabase until verified
+• No downtime - switch when ready
+
+
+📚 MORE HELP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Interactive mode:    ./quick_migration.sh
+Full guide:          MIGRATION_GUIDE.md
+Technical details:   supabase-backup/README.md
+
+
+🆘 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"psql not found"
+→ brew install postgresql@15
+
+"connection refused"  
+→ Check password, verify connection string
+
+"relation already exists"
+→ Ignore - it's normal, continues importing
+
+
+═══════════════════════════════════════════════════════════════
+                    READY TO START? 
+                    
+                Run: ./quick_migration.sh
+═══════════════════════════════════════════════════════════════
