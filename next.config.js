@@ -3,8 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
-  // OPTIMIZATION: Favor static output to reduce server function usage
-  output: 'standalone', // Optimized for serverless deployment
+  // For news websites: Use ISR (on-demand generation) instead of full static export
+  // This allows unlimited posts without rebuilding entire site
   
   eslint: {
     // Warning: This allows production builds to successfully complete even if

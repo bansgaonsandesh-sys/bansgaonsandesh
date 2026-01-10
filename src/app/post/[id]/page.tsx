@@ -124,13 +124,15 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 // Generate static params for all posts (ISR)
 export async function generateStaticParams() {
   try {
+    // For news sites with unlimited posts: only pre-generate recent 20 posts
+    // Older posts will be generated on-demand (ISR) when first visited
     const { data: posts } = await supabase
       .from('posts')
       .select('id')
       .eq('is_active', true)
       .eq('project_id', 'bansgaonsandesh')
       .order('created_at', { ascending: false })
-      .limit(100) // Generate top 100 posts at build time
+      .limit(20) // Only pre-generate 20 newest posts, rest on-demand
 
     return posts?.map((post) => ({
       id: post.id,
