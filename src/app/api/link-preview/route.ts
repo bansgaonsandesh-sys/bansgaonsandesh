@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+// OPTIMIZATION: In-memory cache for link previews (lasts for function lifetime)
+const linkPreviewCache = new Map<string, { data: any; timestamp: number }>()
+const CACHE_TTL = 3600000 // 1 hour in milliseconds
+
 type OgData = {
   url: string
   domain: string
@@ -53,8 +57,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid URL' }, { status: 400 })
     }
 
+    // OPTIMIZATION: Check cache first
+    const cached = linkPreviewCache.get(url)
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      console.log('[Link Preview] Cache hit:', url)
+      return NextResponse.json(cached.data, {
+        headers: {
+          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+        },
+      })
+    }
+
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 10000) // Increased timeout
+    const timeout = setTimeout(() => controller.abort(), 10000)
 
     try {
       const res = await fetch(url, {
@@ -119,7 +134,23 @@ export async function POST(req: NextRequest) {
         image: image || undefined
       }
 
-      return NextResponse.json(payload)
+      // OPTIMIZATION: Store in cache
+      linkPreviewCache.set(url, { data: payload, timestamp: Date.now() })
+
+      // Clean old cache entries (keep cache size manageable)
+      if (linkPreviewCache.size > 1000) {
+        const oldestKeys = Array.from(linkPreviewCache.entries())
+          .sort((a, b) => a[1].timestamp - b[1].timestamp)
+          .slice(0, 200)
+          .map(([key]) => key)
+        oldestKeys.forEach(key => linkPreviewCache.delete(key))
+      }
+
+      return NextResponse.json(payload, {
+        headers: {
+          'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+        },
+      })
     } catch (fetchError: any) {
       clearTimeout(timeout)
       

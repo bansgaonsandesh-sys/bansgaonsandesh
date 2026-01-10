@@ -1,8 +1,9 @@
 import { supabase } from '@/lib/supabase'
 import { siteConfig as SITE_CONFIG } from '@/config/site'
 
+// OPTIMIZATION: 1 hour cache for JSON feed
 export const dynamic = 'force-dynamic'
-export const revalidate = 3600 // Revalidate every hour
+export const revalidate = 3600 // 1 hour
 
 export async function GET() {
   try {

@@ -1,8 +1,9 @@
 import { supabase } from '@/lib/supabase'
 import { siteConfig as SITE_CONFIG } from '@/config/site'
 
+// OPTIMIZATION: Increased cache duration to reduce bot-triggered invocations
 export const dynamic = 'force-dynamic'
-export const revalidate = SITE_CONFIG.cache.revalidate.sitemap
+export const revalidate = 3600 // 1 hour (was using SITE_CONFIG value)
 
 export async function GET() {
   try {

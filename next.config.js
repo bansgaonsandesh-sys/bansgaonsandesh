@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  
+  // OPTIMIZATION: Favor static output to reduce server function usage
+  output: 'standalone', // Optimized for serverless deployment
+  
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.

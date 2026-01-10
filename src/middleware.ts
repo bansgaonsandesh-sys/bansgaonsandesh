@@ -2,24 +2,26 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const response = NextResponse.next()
-
-  // Add headers for webview compatibility and social media crawlers
-  const userAgent = request.headers.get('user-agent') || ''
+  // OPTIMIZATION: Only run for post pages to reduce edge invocations
+  // Static pages don't need dynamic headers
+  const pathname = request.nextUrl.pathname
   
-  // Detect if request is from social media crawler or webview
-  const isCrawler = /bot|crawler|spider|facebook|twitter|whatsapp|telegram|instagram|linkedin/i.test(userAgent)
-  const isWebView = /WebView|wv|Android.*Mobile|iPhone.*Mobile/i.test(userAgent)
+  // Only process post pages for crawler optimization
+  if (!pathname.startsWith('/post/')) {
+    return NextResponse.next()
+  }
 
-  if (isCrawler || isWebView) {
-    // Allow embedding in social media preview and webviews
+  const response = NextResponse.next()
+  
+  // OPTIMIZATION: Simplified bot detection - only for essential social media bots
+  const userAgent = request.headers.get('user-agent') || ''
+  const isCrawler = /facebookexternalhit|twitterbot|whatsapp|telegrambot/i.test(userAgent)
+
+  if (isCrawler) {
+    // Set aggressive caching for bots to reduce repeat requests
+    response.headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800')
     response.headers.set('X-Frame-Options', 'ALLOWALL')
     response.headers.set('Access-Control-Allow-Origin', '*')
-    response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS')
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
-    
-    // Cache control for crawlers
-    response.headers.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
   }
 
   return response
@@ -27,8 +29,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all paths except static files and API routes
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-    '/post/:path*', // Ensure post pages always have proper headers
+    // OPTIMIZATION: Only match post pages, exclude all static assets
+    '/post/:path*',
   ],
 }

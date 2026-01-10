@@ -6,9 +6,9 @@ import AppLayout from "../components/layout/AppLayout";
 import ErrorBoundary from "../components/shared/ErrorBoundary";
 import { siteConfig as SITE_CONFIG, getAbsoluteUrl, getImageUrl } from "@/config/site";
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-export const fetchCache = 'force-no-store'
+// REMOVED: force-dynamic, revalidate = 0, fetchCache = 'force-no-store'
+// These settings forced every page to SSR on every request, causing excessive CPU usage
+// Now defaults to static generation with per-page ISR where needed
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
