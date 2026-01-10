@@ -9,6 +9,9 @@ import Link from 'next/link'
 import { supabaseClient } from '../../../lib/supabase-client'
 import { isAdminEmail } from '@/config/site'
 
+// OPTIMIZATION: Force dynamic rendering for auth pages (requires runtime params)
+export const dynamic = 'force-dynamic'
+
 const { Title, Text } = Typography
 
 interface LoginFormData {

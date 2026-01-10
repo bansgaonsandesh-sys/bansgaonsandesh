@@ -7,6 +7,8 @@ import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 import { supabaseClient } from '../../../lib/supabase-client'
 import { isAdminEmail, siteConfig as SITE_CONFIG } from '@/config/site'
 
+// OPTIMIZATION: Force dynamic rendering for auth callback (requires runtime params)
+export const dynamic = 'force-dynamic'
 
 export default function AuthCallbackPage() {
   const router = useRouter()

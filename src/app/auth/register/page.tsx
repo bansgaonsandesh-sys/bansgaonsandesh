@@ -1,5 +1,8 @@
 'use client'
 
+// This page uses useSearchParams() and requires runtime rendering (no static generation)
+export const dynamic = 'force-dynamic'
+
 import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Form, Input, Button, Typography, Space, Alert, Select, Divider, Card, Result } from 'antd'
