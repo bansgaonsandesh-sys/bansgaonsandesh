@@ -293,6 +293,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
               >
                 <div className="flex items-center cursor-pointer hover:bg-gray-100 rounded-lg px-2 py-1.5 transition-colors">
                   <EnvironmentOutlined className="text-primary text-lg" />
+                  {selectedCity && (
+                    <span className="ml-1.5 text-sm font-medium text-gray-700">
+                      {selectedCity}
+                    </span>
+                  )}
                 </div>
               </Dropdown>
               {/* Profile */}
