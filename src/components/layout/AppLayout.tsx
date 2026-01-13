@@ -99,7 +99,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { key: '/videos', icon: YoutubeOutlined, label: 'Videos' },
     // Only show Create button for bansgaonsandesh users
     ...(user?.user_projects?.some(up => up.is_active && up.project_id === 'bansgaonsandesh') || user?.project_id === 'bansgaonsandesh' ? [{ key: '/create', icon: PlusCircleOutlined, label: 'Create' }] : []),
-    { key: '/wallet', icon: WalletOutlined, label: 'Wallet' },
     { key: '/profile', icon: UserOutlined, label: 'Profile' },
   ]
 
@@ -143,7 +142,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   // Route protection for guest users
   useEffect(() => {
-    const protectedRoutes = ['/create', '/wallet', '/profile']
+    const protectedRoutes = ['/create', '/profile']
 
     if (isGuest && protectedRoutes.includes(pathname)) {
       message.info('Please login to access this feature')
@@ -239,16 +238,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </div>
       ),
       onClick: () => router.push('/profile')
-    },
-    {
-      key: 'wallet',
-      label: (
-        <div className="flex items-center space-x-2">
-          <WalletOutlined />
-          <span>My Wallet</span>
-        </div>
-      ),
-      onClick: () => router.push('/wallet')
     },
     {
       key: 'logout',
