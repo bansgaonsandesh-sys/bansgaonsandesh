@@ -13,7 +13,8 @@ if (typeof window !== 'undefined') {
 // Request notification permission and get FCM token
 export async function requestNotificationPermission(): Promise<string | null> {
   try {
-    if (!('Notification' in window)) {
+    // Check if we're in a browser environment and Notification API is available
+    if (typeof window === 'undefined' || !('Notification' in window)) {
       console.log('This browser does not support notifications');
       return null;
     }
@@ -90,7 +91,12 @@ export async function saveFCMToken(userId: string, token: string) {
 
 // Show notification in the app
 export function showNotification(title: string, body: string, url?: string) {
-  if ('Notification' in window && Notification.permission === 'granted') {
+  // Check if we're in a browser environment and Notification API is available
+  if (typeof window === 'undefined' || !('Notification' in window)) {
+    return;
+  }
+  
+  if (Notification.permission === 'granted') {
     const notification = new Notification(title, {
       body,
       icon: '/icon-192x192.png',

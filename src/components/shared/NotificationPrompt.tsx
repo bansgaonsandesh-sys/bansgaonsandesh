@@ -15,7 +15,7 @@ export default function NotificationPrompt({ userId }: NotificationPromptProps) 
   useEffect(() => {
     // Check if user has already dismissed or granted permission
     const dismissed = localStorage.getItem('notification-prompt-dismissed');
-    const permission = typeof window !== 'undefined' ? Notification.permission : 'default';
+    const permission = typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default';
 
     if (!dismissed && permission === 'default' && userId) {
       // Show prompt after 5 seconds
