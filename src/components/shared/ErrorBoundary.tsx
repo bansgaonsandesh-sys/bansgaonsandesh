@@ -44,6 +44,20 @@ class ErrorBoundary extends Component<Props, State> {
     if (typeof window !== 'undefined') {
       // You can integrate with error tracking services here
       console.error('Component Stack:', errorInfo.componentStack)
+      
+      // Check if we're in a webview and notify the native app
+      try {
+        if ((window as any).ReactNativeWebView) {
+          (window as any).ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'ERROR',
+            error: error.message,
+            stack: error.stack,
+            componentStack: errorInfo.componentStack,
+          }))
+        }
+      } catch (e) {
+        console.error('Failed to send error to native app:', e)
+      }
     }
   }
 

@@ -192,11 +192,13 @@ export default function RootLayout({
           }}
         />
 
-        <Providers>
-          <AppLayout>
-            {children}
-          </AppLayout>
-        </Providers>
+        <ErrorBoundary>
+          <Providers>
+            <AppLayout>
+              {children}
+            </AppLayout>
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );

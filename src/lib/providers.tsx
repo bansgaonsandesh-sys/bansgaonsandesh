@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { supabaseClient } from './supabase-client'
 import { Profile } from './supabase'
 import { useAutoLikeSystem } from '@/hooks/useAutoLikes'
+import { initWebViewErrorHandler } from './webview-error-handler'
 
 
 // Query Client with optimized caching strategy to prevent excessive refetching
@@ -104,6 +105,11 @@ export function Providers({ children }: ProvidersProps) {
 
   // Initialize auto-like system
   useAutoLikeSystem()
+
+  // Initialize webview error handler
+  useEffect(() => {
+    initWebViewErrorHandler();
+  }, []);
 
   const refreshUser = async () => {
     try {

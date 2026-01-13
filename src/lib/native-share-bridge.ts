@@ -23,7 +23,17 @@ export interface DetectionResult {
  * Detect if running in React Native WebView
  */
 export const detectNativeApp = (): DetectionResult => {
-  const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return {
+      isNativeApp: false,
+      isWebView: false,
+      platform: 'web',
+      userAgent: '',
+    };
+  }
+
+  const userAgent = navigator.userAgent || '';
   
   // Check for React Native WebView indicators
   const isReactNativeWebView = !!(
@@ -48,6 +58,12 @@ export const detectNativeApp = (): DetectionResult => {
  * Share content using native bridge if available, fallback to Web Share API
  */
 export const shareNatively = async (data: NativeShareData): Promise<boolean> => {
+  // Ensure we're in a browser environment
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    console.warn('shareNatively called in non-browser environment');
+    return false;
+  }
+
   const { isNativeApp } = detectNativeApp();
 
   // Create short snippet for sharing (max 150 chars)
@@ -96,6 +112,17 @@ export const shareNatively = async (data: NativeShareData): Promise<boolean> => 
  * Extract page preview data from meta tags
  */
 export const getPagePreview = (): Omit<NativeShareData, 'hashtags'> & { hashtags?: string[] } => {
+  // Ensure we're in a browser environment
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return {
+      title: '',
+      description: '',
+      imageUrl: '',
+      url: '',
+      text: '',
+    };
+  }
+
   const getMetaContent = (property: string, attribute = 'property') => {
     const tag = document.querySelector(`meta[${attribute}="${property}"]`);
     return tag?.getAttribute('content') || '';
@@ -119,6 +146,11 @@ export const getPagePreview = (): Omit<NativeShareData, 'hashtags'> & { hashtags
  * Get hashtags from page content
  */
 export const extractHashtags = (): string[] => {
+  // Ensure we're in a browser environment
+  if (typeof document === 'undefined') {
+    return ['#BansgaonSandesh'];
+  }
+
   const tags = new Set<string>();
 
   // From meta tags
@@ -156,6 +188,11 @@ export const sharePageNatively = async (overrides?: Partial<NativeShareData>): P
  * Open a post in the native app (if available)
  */
 export const openPostNatively = (postId: string): boolean => {
+  // Ensure we're in a browser environment
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
   if (typeof (window as any).openPost === 'function') {
     try {
       (window as any).openPost(postId);
@@ -171,6 +208,11 @@ export const openPostNatively = (postId: string): boolean => {
  * Open a user profile in the native app (if available)
  */
 export const openProfileNatively = (username: string): boolean => {
+  // Ensure we're in a browser environment
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
   if (typeof (window as any).openProfile === 'function') {
     try {
       (window as any).openProfile(username);
@@ -204,6 +246,11 @@ export const getAppStoreLink = (platform?: 'android' | 'ios' | 'web'): string =>
  * Inject native bridge availability event
  */
 export const waitForNativeBridge = (timeout = 5000): Promise<boolean> => {
+  // Ensure we're in a browser environment
+  if (typeof window === 'undefined') {
+    return Promise.resolve(false);
+  }
+
   return new Promise((resolve) => {
     const checkBridge = () => {
       if (typeof (window as any).nativeShare === 'function') {
