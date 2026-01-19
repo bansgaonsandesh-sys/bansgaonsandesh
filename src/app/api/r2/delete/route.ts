@@ -62,3 +62,8 @@ export async function DELETE(req: NextRequest) {
         }, { status: 500 })
     }
 }
+
+// Support POST method for clients that prefer it
+export async function POST(req: NextRequest) {
+    return DELETE(req)
+}

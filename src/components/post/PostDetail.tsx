@@ -8,6 +8,7 @@ import { hi } from 'date-fns/locale'
 import { Heart, MessageCircle, Share2, MapPin, Calendar, Eye } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import ShareButton from '@/components/shared/ShareButton'
+import { getPostProjectFilter } from '@/config/projects'
 
 interface PostDetailProps {
   post: any
@@ -39,7 +40,7 @@ export default function PostDetail({ post }: PostDetailProps) {
           cities:city_id(name)
         `)
         .eq('is_active', true)
-        .eq('project_id', 'bansgaonsandesh')
+        .in('project_id', getPostProjectFilter())
         .eq('city_id', post.city_id)
         .neq('id', post.id)
         .order('created_at', { ascending: false })

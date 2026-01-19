@@ -60,6 +60,24 @@ export function isValidProjectId(projectId: string): projectId is ProjectId {
   return projectId in PROJECTS
 }
 
+/**
+ * Get project IDs for post filtering
+ * BUSINESS RULE:
+ * - Bansgav Sandesh: Shows posts from BOTH bansgaonsandesh AND nextupdate
+ * - NextUpdate: Shows ONLY nextupdate posts
+ */
+export function getPostProjectFilter(currentProjectId?: ProjectId): ProjectId[] {
+  const projectId = currentProjectId || getCurrentProjectId()
+  
+  if (projectId === 'bansgaonsandesh') {
+    // Bansgav Sandesh users see posts from both projects
+    return ['bansgaonsandesh', 'nextupdate']
+  }
+  
+  // NextUpdate users only see NextUpdate posts
+  return ['nextupdate']
+}
+
 // Get project by domain (useful for multi-domain deployments)
 export function getProjectByDomain(domain: string): ProjectConfig | null {
   const normalizedDomain = domain.toLowerCase().replace(/^www\./, '')

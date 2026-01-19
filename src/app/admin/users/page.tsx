@@ -36,7 +36,7 @@ import { motion } from 'framer-motion'
 import AdminLayout from '../../../components/layout/AdminLayout'
 import { supabaseClient } from '../../../lib/supabase-client'
 import { isAdmin } from '../../../lib/utils'
-import { adminCreateUser, adminUpdateUser, getAdminCreatedUsers, toggleUserStatus, manageUserProjects } from '@/app/actions/userActions'
+import { adminCreateUser, adminUpdateUser, getAdminCreatedUsers, toggleUserStatus, manageUserProjects, adminDeleteUser } from '@/app/actions/userActions'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -226,17 +226,47 @@ export default function UsersManagementPage() {
 
   const handleDelete = async (userId: string) => {
     try {
-      // Note: Deleting users requires careful consideration of related data
-      const { error } = await supabaseClient
-        .from('profiles')
-        .delete()
-        .eq('id', userId)
+      // Get access token for admin verification
+      const { data: { session } } = await supabaseClient.auth.getSession()
+      if (!session?.access_token) {
+        message.error('Session expired. Please login again.')
+        return
+      }
 
-      if (error) throw error
-      message.success('User deleted successfully')
-      fetchData()
+      message.loading({ content: 'Deleting user and all related data...', key: 'delete', duration: 0 })
+      
+      const result = await adminDeleteUser(userId, session.access_token)
+      
+      if (result.success) {
+        message.destroy('delete')
+        
+        // Show detailed success message
+        const counts = result.deletedCounts
+        Modal.success({
+          title: 'User Deleted Successfully',
+          content: (
+            <div>
+              <p>All user data has been removed:</p>
+              <ul style={{ marginTop: 8 }}>
+                <li>Posts: {counts?.posts || 0}</li>
+                <li>Comments: {counts?.comments || 0}</li>
+                <li>Likes: {counts?.likes || 0}</li>
+                <li>Follows: {counts?.follows || 0}</li>
+                <li>Saved Posts: {counts?.savedPosts || 0}</li>
+                <li>R2 Media Files: {counts?.r2Files || 0}</li>
+              </ul>
+            </div>
+          ),
+        })
+        
+        fetchData()
+      } else {
+        message.destroy('delete')
+        message.error(result.error || 'Failed to delete user')
+      }
     } catch (error) {
       console.error('Error deleting user:', error)
+      message.destroy('delete')
       message.error('Failed to delete user')
     }
   }
@@ -393,11 +423,23 @@ export default function UsersManagementPage() {
             Edit
           </Button>
           <Popconfirm
-            title="Delete user?"
-            description="This action cannot be undone"
+            title="⚠️ Delete User Permanently?"
+            description={
+              <div style={{ maxWidth: 300 }}>
+                <p><strong>This will permanently delete:</strong></p>
+                <ul style={{ paddingLeft: 16, margin: '8px 0' }}>
+                  <li>All posts by this user</li>
+                  <li>All media files from R2</li>
+                  <li>Comments, likes, follows</li>
+                  <li>All user activity records</li>
+                </ul>
+                <p style={{ color: '#ff4d4f', fontWeight: 500 }}>This action CANNOT be undone!</p>
+              </div>
+            }
             onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
+            okText="Yes, Delete Everything"
+            cancelText="Cancel"
+            okButtonProps={{ danger: true }}
           >
             <Button 
               danger 

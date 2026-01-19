@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { supabaseClient } from '../lib/supabase-client'
+import { getPostProjectFilter } from '@/config/projects'
 
 // Hook for fetching posts by city
 export function usePosts(selectedCity: string | null, userId: string | null) {
@@ -32,7 +33,7 @@ export function usePosts(selectedCity: string | null, userId: string | null) {
         `)
         .eq('city_id', cityData.id)
         .eq('is_active', true)
-        .eq('project_id', 'bansgaonsandesh')
+        .in('project_id', getPostProjectFilter())
         .order('created_at', { ascending: false })
         .limit(20)
 
@@ -100,7 +101,7 @@ export function useUserPosts(userId: string | null) {
         .select('*')
         .eq('user_id', userId)
         .eq('is_active', true)
-        .eq('project_id', 'bansgaonsandesh')
+        .in('project_id', getPostProjectFilter())
         .order('created_at', { ascending: false })
 
       if (error) throw error

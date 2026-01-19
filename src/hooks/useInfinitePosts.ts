@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { supabaseClient } from '@/lib/supabase-client'
 import { debugLogger } from '@/utils/debugLogger'
+import { getPostProjectFilter } from '@/config/projects'
 
 const PAGE_SIZE = 10 // Items per page
 
@@ -68,7 +69,7 @@ export function useInfinitePosts(cityId: string | null, userId: string | null) {
           `)
           .eq('city_id', cityData.id)
           .eq('is_active', true)
-          .eq('project_id', 'bansgaonsandesh')
+          .in('project_id', getPostProjectFilter())
           .order('created_at', { ascending: false })
           .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1)
 
@@ -94,7 +95,7 @@ export function useInfinitePosts(cityId: string | null, userId: string | null) {
               )
             `)
             .eq('is_active', true)
-            .eq('project_id', 'bansgaonsandesh')
+            .in('project_id', getPostProjectFilter())
             .order('created_at', { ascending: false })
             .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1)
 
@@ -200,7 +201,7 @@ export function useInfiniteTrendingPosts(cityId: string | null, userId: string |
         `)
         .eq('city_id', cityData.id)
         .eq('is_active', true)
-        .eq('project_id', 'bansgaonsandesh')
+        .in('project_id', getPostProjectFilter())
         .gte('created_at', sevenDaysAgo.toISOString())
         .order('likes_count', { ascending: false })
         .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1)
@@ -222,7 +223,7 @@ export function useInfiniteTrendingPosts(cityId: string | null, userId: string |
             )
           `)
           .eq('is_active', true)
-          .eq('project_id', 'bansgaonsandesh')
+          .in('project_id', getPostProjectFilter())
           .gte('created_at', sevenDaysAgo.toISOString())
           .order('likes_count', { ascending: false })
           .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1)
@@ -310,6 +311,7 @@ export function usePrefetchNextPage(cityId: string | null, userId: string | null
           `)
           .eq('city_id', cityData.id)
           .eq('is_active', true)
+          .in('project_id', getPostProjectFilter())
           .order('created_at', { ascending: false })
           .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1)
 

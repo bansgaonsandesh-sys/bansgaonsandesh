@@ -5,8 +5,7 @@ import { supabaseClient } from '../../lib/supabase-client'
 import { revalidatePath } from 'next/cache'
 import { siteConfig } from '@/config/site'
 import { isAdmin } from '@/lib/utils'
-
-const AD_DAILY_RATE = 2000
+import { getFeatureCost } from '@/lib/config-service'
 
 // Initialize standard Supabase client only for creating other clients or non-auth data
 // For auth operations, we MUST use a client initialized with the user's token
@@ -55,6 +54,10 @@ export async function createAd(
 
         console.log('✅ [createAd] Auth validated successfully')
 
+        // Get dynamic ad daily rate from config
+        const adDailyRate = await getFeatureCost('ad_daily_rate')
+        console.log('🔵 [createAd] Ad daily rate from config:', adDailyRate)
+
         // Create authenticated client
         const authClient = createClient(supabaseUrl, supabaseAnonKey, {
             global: { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -68,7 +71,7 @@ export async function createAd(
             p_media_type: mediaType,
             p_target_link: targetLink,
             p_duration_days: durationDays,
-            p_daily_rate: AD_DAILY_RATE,
+            p_daily_rate: adDailyRate,
             p_contact_mobile: contactMobile,
             p_contact_whatsapp: contactWhatsapp
         })

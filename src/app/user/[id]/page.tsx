@@ -15,6 +15,7 @@ import { motion } from 'framer-motion'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useApp } from '@/lib/providers'
 import { supabaseClient } from '@/lib/supabase-client'
+import { getPostProjectFilter } from '@/config/projects'
 import { formatNumber } from '@/lib/utils'
 import PostCard from '@/components/posts/PostCard'
 import { getProxiedImageUrl } from '@/lib/r2-storage'
@@ -89,7 +90,7 @@ export default function UserProfilePage() {
           .select('id', { count: 'exact', head: true })
           .eq('user_id', userId)
           .eq('is_active', true)
-          .eq('project_id', 'bansgaonsandesh')
+          .in('project_id', getPostProjectFilter())
       ])
 
       return {

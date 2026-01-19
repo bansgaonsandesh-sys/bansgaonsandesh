@@ -1,6 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { supabaseClient } from '../lib/supabase-client'
-
+import { supabaseClient } from '../lib/supabase-client'import { getPostProjectFilter } from '@/config/projects'
 const POSTS_PER_PAGE = 10
 
 interface TrendingPost {
@@ -65,7 +64,7 @@ export function useInfiniteTrending({
         `)
         .eq('city_id', cityData.id)
         .eq('is_active', true)
-        .eq('project_id', 'bansgaonsandesh')
+        .in('project_id', getPostProjectFilter())
         .gte('created_at', sevenDaysAgo.toISOString())
         .order('likes_count', { ascending: false })
         .range(pageParam * POSTS_PER_PAGE, (pageParam + 1) * POSTS_PER_PAGE - 1)

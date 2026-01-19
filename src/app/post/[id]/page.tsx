@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import PostDetail from '@/components/post/PostDetail'
 import { siteConfig as SITE_CONFIG, getAbsoluteUrl, getImageUrl } from '@/config/site'
 import { getProxiedImageUrl } from '@/lib/r2-storage'
+import { getPostProjectFilter } from '@/config/projects'
 
 // Helper function alias for consistency
 const getFullUrl = getAbsoluteUrl
@@ -130,7 +131,7 @@ export async function generateStaticParams() {
       .from('posts')
       .select('id')
       .eq('is_active', true)
-      .eq('project_id', 'bansgaonsandesh')
+      .in('project_id', getPostProjectFilter())
       .order('created_at', { ascending: false })
       .limit(20) // Only pre-generate 20 newest posts, rest on-demand
 

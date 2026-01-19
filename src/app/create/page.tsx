@@ -296,18 +296,18 @@ export default function CreatePostPage() {
         mediaType = typeSource.startsWith('video/') ? 'video' : 'image'
       }
 
-      // Determine target project(s)
+      // Determine target project(s) based on user type
+      // BUSINESS RULE:
+      // - Bansgav Sandesh users: Posts ALWAYS go to BOTH projects
+      // - NextUpdate users: Posts ONLY go to NextUpdate
       const targetProjects: string[] = []
       
-      if (postToBothPlatforms && canPostToBoth) {
-        // Post to both platforms
+      if (canPostToBoth || userProjectId === 'bansgaonsandesh') {
+        // Bansgav Sandesh users: Always post to both platforms
         targetProjects.push('bansgaonsandesh', 'nextupdate')
-      } else if (canPostToBoth && values.target_project) {
-        // Single project selected
-        targetProjects.push(values.target_project)
       } else {
-        // User's default project
-        targetProjects.push(userProjectId)
+        // NextUpdate users: Only post to NextUpdate
+        targetProjects.push('nextupdate')
       }
 
       // Create post(s)

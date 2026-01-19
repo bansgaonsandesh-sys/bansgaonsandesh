@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, Typography, Form, Input, InputNumber, Button, Upload, Alert, App } from 'antd'
 import { UploadOutlined, RocketOutlined, DollarOutlined, InfoCircleOutlined, PhoneOutlined, WhatsAppOutlined, GlobalOutlined } from '@ant-design/icons'
@@ -9,10 +9,9 @@ import { uploadToR2, generateFileKey } from '../../../lib/r2-storage'
 import { createAd } from '../../actions/adActions'
 import { formatNumber } from '../../../lib/utils'
 import { supabaseClient } from '../../../lib/supabase-client'
+import { getFeatureCost } from '../../../lib/config-service'
 
 const { Title, Text, Paragraph } = Typography
-
-const AD_DAILY_RATE = 2000
 
 export default function ClientAdsCreatePage() {
     const { user, isLoading } = useApp()
@@ -22,8 +21,18 @@ export default function ClientAdsCreatePage() {
     const [fileList, setFileList] = useState<any[]>([])
     const [submitting, setSubmitting] = useState(false)
     const [duration, setDuration] = useState<number>(1)
+    const [adDailyRate, setAdDailyRate] = useState<number>(2000) // fallback
 
-    const totalCost = duration * AD_DAILY_RATE
+    // Fetch dynamic ad rate on mount
+    useEffect(() => {
+        const fetchRate = async () => {
+            const rate = await getFeatureCost('ad_daily_rate')
+            setAdDailyRate(rate)
+        }
+        fetchRate()
+    }, [])
+
+    const totalCost = duration * adDailyRate
 
     const handleUploadChange = ({ fileList: newFileList }: any) => {
         setFileList(newFileList)
@@ -266,7 +275,7 @@ export default function ClientAdsCreatePage() {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <Text>Daily Rate</Text>
-                                    <Text strong>{formatNumber(AD_DAILY_RATE)} pts</Text>
+                                    <Text strong>{formatNumber(adDailyRate)} pts</Text>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <Text>Duration</Text>
