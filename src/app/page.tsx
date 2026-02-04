@@ -103,7 +103,7 @@ export default function HomePage() {
   // For guests, we only need city to be ready
   if (isUserLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] bg-gray-50">
         <Spin size="large" />
         <p className="mt-4 text-gray-600">Loading...</p>
       </div>
@@ -111,19 +111,22 @@ export default function HomePage() {
   }
 
   // If city is not ready, the CitySelectionModal will show (handled in layout)
-  // But we can still show the page structure
-
-  // No city selected (should not happen but handle gracefully)
+  // Show skeleton content instead of blocking the entire page
   if (!selectedCity) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <p className="text-gray-600">Please select a city to continue</p>
+      <div className="min-h-screen bg-gray-50 pb-24">
+        <div className="container mx-auto md:py-6 px-4">
+          <div className="flex flex-col items-center justify-center py-12">
+            <Spin size="large" />
+            <p className="mt-4 text-gray-600">Waiting for city selection...</p>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
       <div className="container mx-auto md:py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 

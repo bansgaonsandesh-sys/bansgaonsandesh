@@ -12,7 +12,6 @@ import {
   GlobalOutlined
 } from '@ant-design/icons'
 // Using regular img tag for external images to avoid Next.js Image optimization issues
-import { motion } from 'framer-motion'
 import { LinkPreviewData } from '@/utils/linkPreview'
 
 const { Text } = Typography
@@ -52,11 +51,7 @@ export default function LinkPreview({ preview, compact = false }: LinkPreviewPro
   // YouTube Video Preview
   if (preview.type === 'youtube' && preview.image && !imageError) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mt-3"
-      >
+      <div className="mt-3">
         <Card
           hoverable
           onClick={handleClick}
@@ -89,18 +84,14 @@ export default function LinkPreview({ preview, compact = false }: LinkPreviewPro
             </Space>
           </div>
         </Card>
-      </motion.div>
+      </div>
     )
   }
 
   // Image Preview
   if (preview.type === 'image' && preview.image && !imageError) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mt-3"
-      >
+      <div className="mt-3">
         <Card
           hoverable
           onClick={handleClick}
@@ -125,18 +116,14 @@ export default function LinkPreview({ preview, compact = false }: LinkPreviewPro
             </div>
           </div>
         </Card>
-      </motion.div>
+      </div>
     )
   }
 
   // Generic Link Preview (compact)
   if (compact) {
     return (
-      <motion.div
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="mt-2"
-      >
+      <div className="mt-2">
         <div
           onClick={handleClick}
           className={`inline-flex items-center gap-2 px-3 py-2 ${getPlatformColor(preview.domain)} hover:shadow-md rounded-full cursor-pointer transition-all border`}
@@ -146,17 +133,13 @@ export default function LinkPreview({ preview, compact = false }: LinkPreviewPro
             {preview.domain}
           </Text>
         </div>
-      </motion.div>
+      </div>
     )
   }
 
   // Generic Link Preview (full)
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mt-3"
-    >
+    <div className="mt-3">
       <Card
         hoverable
         onClick={handleClick}
@@ -195,6 +178,6 @@ export default function LinkPreview({ preview, compact = false }: LinkPreviewPro
           </div>
         </Space>
       </Card>
-    </motion.div>
+    </div>
   )
 }

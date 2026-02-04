@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { Modal, Button, Select, Typography, Space, Card } from 'antd'
 import { EnvironmentOutlined } from '@ant-design/icons'
-import { motion } from 'framer-motion'
 import { supabaseClient } from '../../lib/supabase-client'
 
 const { Title, Text } = Typography
@@ -122,21 +121,14 @@ export default function CitySelectionModal({
       className="city-selection-modal"
       maskClosable={false}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div>
         <Card className="border-0 shadow-none">
           <div className="text-center mb-6">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
+            <div
               className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4"
             >
               <EnvironmentOutlined className="text-2xl text-white" />
-            </motion.div>
+            </div>
             
             <Title level={3} className="mb-2 text-gray-800">
               {title}
@@ -205,7 +197,7 @@ export default function CitySelectionModal({
             </Text>
           </div>
         </Card>
-      </motion.div>
+      </div>
     </Modal>
   )
 }

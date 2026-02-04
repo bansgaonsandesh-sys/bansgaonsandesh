@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Avatar, Button, Typography, Space, Tabs, Card, Tag, Modal, Upload, Form, Input, Select, App } from 'antd'
 import { siteConfig as SITE_CONFIG } from '@/config/site'
+import { getPostProjectFilter } from '@/config/projects'
 import {
   UserOutlined,
   EditOutlined,

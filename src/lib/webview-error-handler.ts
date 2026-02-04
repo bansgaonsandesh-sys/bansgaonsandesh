@@ -11,6 +11,13 @@ export const initWebViewErrorHandler = () => {
 
   // Global error handler
   window.addEventListener('error', (event) => {
+    const errorMessage = event.error?.message || event.message || '';
+    
+    // Skip Next.js internal navigation errors (NEXT_NOT_FOUND, NEXT_REDIRECT, etc.)
+    if (errorMessage.includes('NEXT_') || errorMessage.includes('notFound') || errorMessage.includes('redirect')) {
+      return;
+    }
+
     console.error('Global error:', event.error || event.message);
 
     // Report to native app if in webview
@@ -18,7 +25,7 @@ export const initWebViewErrorHandler = () => {
       if ((window as any).ReactNativeWebView) {
         (window as any).ReactNativeWebView.postMessage(JSON.stringify({
           type: 'ERROR',
-          error: event.error?.message || event.message,
+          error: errorMessage,
           stack: event.error?.stack || '',
           filename: event.filename,
           lineno: event.lineno,
@@ -26,7 +33,7 @@ export const initWebViewErrorHandler = () => {
         }));
       }
     } catch (e) {
-      console.error('Failed to send error to native app:', e);
+      // Silently ignore
     }
 
     // Prevent default behavior in production (shows error page)
@@ -38,6 +45,13 @@ export const initWebViewErrorHandler = () => {
 
   // Unhandled promise rejection handler
   window.addEventListener('unhandledrejection', (event) => {
+    const errorMessage = event.reason?.message || String(event.reason) || '';
+    
+    // Skip Next.js internal navigation errors
+    if (errorMessage.includes('NEXT_') || errorMessage.includes('notFound') || errorMessage.includes('redirect')) {
+      return;
+    }
+
     console.error('Unhandled promise rejection:', event.reason);
 
     // Report to native app if in webview
@@ -45,12 +59,12 @@ export const initWebViewErrorHandler = () => {
       if ((window as any).ReactNativeWebView) {
         (window as any).ReactNativeWebView.postMessage(JSON.stringify({
           type: 'UNHANDLED_REJECTION',
-          error: event.reason?.message || String(event.reason),
+          error: errorMessage,
           stack: event.reason?.stack || '',
         }));
       }
     } catch (e) {
-      console.error('Failed to send rejection to native app:', e);
+      // Silently ignore
     }
 
     // Prevent default behavior in production

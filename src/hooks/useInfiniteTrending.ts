@@ -1,5 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { supabaseClient } from '../lib/supabase-client'import { getPostProjectFilter } from '@/config/projects'
+import { supabaseClient } from '../lib/supabase-client'
+import { getPostProjectFilter } from '@/config/projects'
+
 const POSTS_PER_PAGE = 10
 
 interface TrendingPost {

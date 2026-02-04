@@ -3,7 +3,6 @@
 import React from 'react'
 import { Card, Avatar, Button, Space, Typography, Tag } from 'antd'
 import { PhoneOutlined, WhatsAppOutlined, GlobalOutlined } from '@ant-design/icons'
-import { motion } from 'framer-motion'
 
 const { Text, Paragraph } = Typography
 
@@ -57,12 +56,7 @@ export default function SponsoredPostCard({ ad, onImpression, onClick }: Sponsor
     }
 
     return (
-        <motion.div
-            id={`ad-${ad.id}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-        >
+        <div id={`ad-${ad.id}`}>
             <Card className="mb-4 border-2 border-yellow-100 bg-gradient-to-br from-yellow-50 to-orange-50">
                 {/* Sponsored Badge */}
                 <div className="flex items-center justify-between mb-3">
@@ -127,6 +121,6 @@ export default function SponsoredPostCard({ ad, onImpression, onClick }: Sponsor
                     )}
                 </Space>
             </Card>
-        </motion.div>
+        </div>
     )
 }

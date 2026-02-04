@@ -74,6 +74,10 @@ const themeConfig = {
     Card: {
       borderRadius: 16,
     },
+    Modal: {
+      // Prevent Modal from blocking body scroll
+      zIndexPopupBase: 1000,
+    },
   },
 }
 
@@ -103,8 +107,9 @@ export function Providers({ children }: ProvidersProps) {
   const [isCityReady, setIsCityReady] = useState(false)
   const [showCitySelection, setShowCitySelection] = useState(false)
 
-  // Initialize auto-like system
-  useAutoLikeSystem()
+  // Initialize auto-like system - DISABLED to improve mobile performance
+  // Auto-likes will be calculated on-demand when posts are fetched
+  // useAutoLikeSystem()
 
   // Initialize webview error handler
   useEffect(() => {

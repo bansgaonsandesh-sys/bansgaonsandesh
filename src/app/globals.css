@@ -4,22 +4,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Prevent zooming and text size adjustment */
-html {
+/* CRITICAL: Ensure page scrolls on all devices */
+html, body {
+  height: 100%;
+  min-height: 100%;
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  touch-action: pan-x pan-y;
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
 body {
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  touch-action: pan-x pan-y;
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  /* Don't set position or height that breaks scroll */
 }
 
 /* Prevent double-tap zoom on inputs */
@@ -275,29 +280,13 @@ body {
 
 /* Mobile-specific styles */
 @media (max-width: 768px) {
-  html {
-    /* Prevent zooming completely */
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-  }
-
-  body {
-    overflow-x: hidden;
-    -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
-    /* Prevent overscroll bounce */
-    overscroll-behavior: none;
+  html, body {
+    /* CRITICAL: Allow scrolling on mobile */
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
-    /* Prevent zoom on double tap */
-    -ms-touch-action: manipulation;
+    height: 100%;
+    min-height: 100%;
   }
 
   /* Allow text selection for inputs and content areas */
@@ -318,8 +307,6 @@ body {
   textarea, 
   select {
     font-size: 16px !important;
-    transform: translateZ(0);
-    transition: none;
     /* Additional zoom prevention */
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -327,19 +314,8 @@ body {
     touch-action: manipulation;
   }
 
-  /* Prevent zoom on any tap/double-tap */
-  * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
-    /* Prevent selection highlight */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
+  /* Don't restrict touch-action globally - allow scroll */
+  
   /* Better touch targets - minimum 44px */
   button, 
   .ant-btn, 
@@ -348,6 +324,7 @@ body {
   [role="button"] {
     min-height: 44px;
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Prevent text selection on UI elements */
@@ -368,10 +345,9 @@ body {
     -webkit-touch-callout: none;
   }
 
-  /* Native-like scrolling */
+  /* Native-like scrolling - REMOVED contain: layout which breaks fixed positioning */
   .ant-layout,
-  .ant-layout-content,
-  main {
+  .ant-layout-content {
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
   }
@@ -402,13 +378,13 @@ body {
   /* Smooth scrolling */
   html {
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: auto;
   }
 
-  /* Prevent horizontal scroll */
+  /* Prevent horizontal scroll - NO transforms on body, they break fixed positioning! */
   html, body {
     overflow-x: hidden;
     width: 100%;
-    position: relative;
   }
 
   /* Fix for WebView scaling issues */
@@ -538,4 +514,20 @@ body {
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Fix modal not blocking body scroll */
+.ant-modal-wrap {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ant-modal-mask {
+  touch-action: auto !important;
+}
+
+/* Ensure body can scroll even when modal is open */
+body.ant-scrolling-effect {
+  overflow-y: auto !important;
+  position: relative !important;
 }

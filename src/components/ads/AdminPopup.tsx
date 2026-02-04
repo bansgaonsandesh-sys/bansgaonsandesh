@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Button } from 'antd'
 import { PhoneOutlined, WhatsAppOutlined, GlobalOutlined, CloseOutlined } from '@ant-design/icons'
-import { motion } from 'framer-motion'
 
 interface AdminPopupProps {
     ads: Array<{
@@ -38,8 +37,6 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
             const randomAd = ads[randomIndex]
             setSelectedAd(randomAd)
             
-            console.log('🎯 [POPUP] Selected random ad:', randomAd.title)
-            console.log('✅ [POPUP] Showing popup')
             setVisible(true)
             setHasTrackedImpression(false) // Reset for new ad
             sessionStorage.setItem('popup_last_shown', Date.now().toString())
@@ -50,7 +47,6 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
         
         if (!lastShownTime) {
             // First visit - show popup after 5 seconds
-            console.log('🎯 [POPUP] First visit - will show after 5 seconds')
             initialTimer = setTimeout(() => {
                 showRandomPopup()
                 // Then continue showing every 5 minutes
@@ -64,7 +60,6 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
             if (timeSinceLastShown < fiveMinutes) {
                 const remainingTime = fiveMinutes - timeSinceLastShown
                 const remainingMinutes = Math.ceil(remainingTime / 1000 / 60)
-                console.log(`⚠️ [POPUP] Shown recently. Will show again in ${remainingMinutes} minutes`)
                 
                 // Show next popup after remaining time
                 initialTimer = setTimeout(() => {
@@ -74,7 +69,6 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                 }, remainingTime)
             } else {
                 // More than 5 minutes passed, show after 5 seconds
-                console.log('🎯 [POPUP] More than 5 minutes passed - will show after 5 seconds')
                 initialTimer = setTimeout(() => {
                     showRandomPopup()
                     // Then continue showing every 5 minutes
@@ -91,14 +85,12 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
 
     useEffect(() => {
         if (visible && !hasTrackedImpression && selectedAd) {
-            console.log('📊 [POPUP] Tracking impression for:', selectedAd.id)
             onImpression?.(selectedAd.id)
             setHasTrackedImpression(true)
         }
     }, [visible, hasTrackedImpression, selectedAd, onImpression])
 
     const handleClose = () => {
-        console.log('❌ [POPUP] Closing popup')
         setVisible(false)
     }
 
@@ -131,12 +123,13 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
             width={600}
             centered
             className="popup-ad-modal"
+            maskClosable={true}
+            keyboard={true}
+            destroyOnClose={true}
+            getContainer={false}
+            style={{ position: 'fixed', zIndex: 1000 }}
         >
-            <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3 }}
-            >
+            <div>
                 <div className="text-center">
                     <img
                         src={selectedAd.image_url}
@@ -205,7 +198,7 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                         </Button>
                     </div>
                 </div>
-            </motion.div>
+            </div>
         </Modal>
     )
 }

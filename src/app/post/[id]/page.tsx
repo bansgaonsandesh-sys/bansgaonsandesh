@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
       `)
       .eq('id', postId)
       .eq('is_active', true)
-      .eq('project_id', 'bansgaonsandesh')
+      .in('project_id', getPostProjectFilter())
       .single()
 
     if (error || !post) {
@@ -152,8 +152,6 @@ export default async function PostPage({ params }: PostPageProps) {
     // Use post ID directly
     const postId = params.id
     
-    console.log('[POST PAGE] Post ID:', postId)
-    
     const { data: post, error } = await supabase
       .from('posts')
       .select(`
@@ -165,15 +163,12 @@ export default async function PostPage({ params }: PostPageProps) {
       `)
       .eq('id', postId)
       .eq('is_active', true)
-      .eq('project_id', 'bansgaonsandesh')
+      .in('project_id', getPostProjectFilter())
       .single()
 
     if (error || !post) {
-      console.error('[POST PAGE] Post not found:', { postId, error })
       notFound()
     }
-
-    console.log('[POST PAGE] Post loaded successfully:', post.id, post.title)
 
     // Generate comprehensive JSON-LD structured data for Google
     const articleSchema = {

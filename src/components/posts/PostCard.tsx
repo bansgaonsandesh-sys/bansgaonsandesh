@@ -15,7 +15,6 @@ import {
   UserAddOutlined,
   UserDeleteOutlined
 } from '@ant-design/icons'
-import { motion, AnimatePresence } from 'framer-motion'
 import { formatRelativeTime, formatNumber, APP_STORE_LINK } from '../../lib/utils'
 import { socialActions, supabaseClient } from '../../lib/supabase-client'
 
@@ -465,10 +464,8 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
 
   return (
     <>
-      <motion.div
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-        whileHover={{ y: -2 }}
-        transition={{ duration: 0.2 }}
+      <div
+        className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:-translate-y-0.5 transition-transform duration-200"
       >
         <PostHeader
           post={post}
@@ -497,25 +494,12 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
         {post.caption && (
           <div className="px-4 pb-2">
             <div className="text-gray-800 leading-relaxed">
-              <AnimatePresence mode="wait">
                 {isExpanded ? (
-                  <motion.div
-                    key="expanded"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                  <div>
                     <LinkifiedText text={post.caption} />
-                  </motion.div>
+                  </div>
                 ) : (
-                  <motion.div
-                    key="collapsed"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                  <div>
                     <LinkifiedText
                       text={
                         post.caption.length > CAPTION_LIMIT
@@ -523,18 +507,16 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
                           : post.caption
                       }
                     />
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
 
               {post.caption.length > CAPTION_LIMIT && (
-                <motion.button
+                <button
                   onClick={() => setIsExpanded(!isExpanded)}
                   className="text-gray-500 hover:text-gray-700 font-medium text-sm mt-1 transition-colors active:scale-95"
-                  whileTap={{ scale: 0.95 }}
                 >
                   {isExpanded ? 'See less' : 'See more'}
-                </motion.button>
+                </button>
               )}
             </div>
           </div>
@@ -601,7 +583,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <Space size="large">
-              <motion.div whileTap={{ scale: 0.9 }}>
+              <div className="active:scale-90 transition-transform">
                 <Button
                   type="text"
                   icon={isLiked ? <HeartFilled className="text-red-500" /> : <HeartOutlined />}
@@ -611,9 +593,9 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
                 >
                   {formatNumber(likesCount)}
                 </Button>
-              </motion.div>
+              </div>
 
-              <motion.div whileTap={{ scale: 0.9 }}>
+              <div className="active:scale-90 transition-transform">
                 <Button
                   type="text"
                   icon={<MessageOutlined />}
@@ -622,9 +604,9 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
                 >
                   {formatNumber(commentsCount)}
                 </Button>
-              </motion.div>
+              </div>
 
-              <motion.div whileTap={{ scale: 0.9 }}>
+              <div className="active:scale-90 transition-transform">
                 <ShareButton
                   postId={post.id}
                   title={post.title || `${post.profiles.name}'s post`}
@@ -636,7 +618,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
                   count={sharesCount}
                   className="flex items-center text-gray-600 hover:bg-green-50"
                 />
-              </motion.div>
+              </div>
             </Space>
           </div>
 
@@ -711,14 +693,9 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                <AnimatePresence>
                   {comments.map((commentItem, index) => (
-                    <motion.div
+                    <div
                       key={commentItem.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ delay: index * 0.05 }}
                       className="p-3 hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex space-x-3">
@@ -756,9 +733,8 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
                           </Paragraph>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
-                </AnimatePresence>
               </div>
             )}
           </div>
@@ -804,7 +780,7 @@ export default function PostCard({ post, currentUserId, isGuest = false, onUpdat
             )}
           </div>
         </Modal>
-      </motion.div>
+      </div>
 
       <PostEditModal
         open={isEditModalOpen}

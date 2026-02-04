@@ -13,6 +13,7 @@ import {
   CrownOutlined
 } from '@ant-design/icons'
 import { motion } from 'framer-motion'
+import { getPostProjectFilter } from '@/config/projects'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { useApp } from '../../lib/providers'
 import { supabaseClient } from '../../lib/supabase-client'

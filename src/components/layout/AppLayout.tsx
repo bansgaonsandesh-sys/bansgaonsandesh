@@ -21,7 +21,6 @@ import {
   YoutubeOutlined
 } from '@ant-design/icons'
 import { Badge, Avatar, Dropdown, Space, message, Input } from 'antd'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useApp } from '../../lib/providers'
 import { formatNumber } from '../../lib/utils'
 import { supabaseClient } from '../../lib/supabase-client'
@@ -256,16 +255,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Desktop Sidebar */}
       <Sidebar />
 
-      {/* Main Content Area */}
+      {/* Main Content Area - NO overflow-y-auto here, let body scroll */}
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Top Header (Mobile Only) */}
-        <motion.header
-          className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-200 px-4 pb-3 shadow-sm"
-          style={{ paddingTop: 'calc(var(--safe-area-top, 0px) + 14px)' }}
-          initial={{ y: -60 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.3 }}
+        <header
+          className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-200 px-4 pb-3 shadow-sm"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 14px)' }}
         >
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -325,34 +321,20 @@ export default function AppLayout({ children }: AppLayoutProps) {
               </Dropdown>
             </div>
           </div>
-        </motion.header>
+        </header>
 
         {/* Scrollable Main Content */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-0 sm:px-4 md:px-8 py-4 sm:py-6 md:py-8 mb-20 md:mb-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="h-full"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+        <main className="flex-1 max-w-7xl w-full mx-auto px-0 sm:px-4 md:px-8 py-4 sm:py-6 md:py-8 pb-24 md:pb-0">
+          {children}
         </main>
       </div>
 
       {/* Bottom Navigation (Mobile Only) */}
-      <motion.nav
-        className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-gray-200 px-4 pt-2 z-50 shadow-[0_-8px_24px_rgba(15,23,42,0.12)]"
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 pt-2 z-[9999]"
         style={{
-          paddingBottom: 'calc(var(--safe-area-bottom, 0px) + 12px)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
         }}
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
       >
         <div className="flex items-center justify-around mx-auto w-full">
           {navigationItems.map((item) => {
@@ -360,7 +342,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             const Icon = item.icon
 
             return (
-              <motion.button
+              <button
                 key={item.key}
                 onClick={() => {
                   if (item.onClick) {
@@ -373,16 +355,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   ? 'bg-gradient-to-br from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-200/60 ring-1 ring-blue-500/40'
                   : 'text-slate-500 hover:text-slate-700 bg-white/5'
                   }`}
-                whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.05 }}
               >
                 <Icon className="text-xl mb-1" />
                 <span className="text-xs font-medium">{item.label}</span>
-              </motion.button>
+              </button>
             )
           })}
         </div>
-      </motion.nav>
+      </nav>
 
       {/* City Selection Modal for Guest Users */}
       <CitySelectionModal

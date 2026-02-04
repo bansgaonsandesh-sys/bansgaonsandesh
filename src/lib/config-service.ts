@@ -4,7 +4,10 @@
  */
 
 import { supabaseClient } from './supabase-client'
-import { PROJECT_ID } from '@/config/site'
+import { getCurrentProjectId } from '@/config/projects'
+
+// Get project ID from projects config
+const PROJECT_ID = getCurrentProjectId()
 
 // Cache configuration to avoid repeated database calls
 let configCache: {

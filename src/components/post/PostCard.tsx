@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Heart, MessageCircle, Share2, MoreVertical, BadgeCheck } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Avatar } from '@/components/shared/Avatar';
 import type { Post, Profile } from '@/lib/supabase';
 import { formatRelativeTime } from '@/utils/formatters';
@@ -28,9 +27,7 @@ export function PostCard({ post, user, currentUserId, onLike, onComment, onShare
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       className="bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden mb-4"
     >
       {/* Header */}
@@ -82,10 +79,9 @@ export function PostCard({ post, user, currentUserId, onLike, onComment, onShare
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-4">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={handleLike}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 active:scale-95 transition-transform"
             >
               <Heart
                 size={24}
@@ -95,25 +91,23 @@ export function PostCard({ post, user, currentUserId, onLike, onComment, onShare
                 )}
               />
               <span className="text-sm font-medium">{post.likes_count + (isLiked ? 1 : 0)}</span>
-            </motion.button>
+            </button>
             
-            <motion.button
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={() => onComment(post.id)}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 active:scale-95 transition-transform"
             >
               <MessageCircle size={24} className="text-gray-700 dark:text-gray-300" />
               <span className="text-sm font-medium">{post.comments_count}</span>
-            </motion.button>
+            </button>
             
-            <motion.button
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={() => onShare(post.id)}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 active:scale-95 transition-transform"
             >
               <Share2 size={24} className="text-gray-700 dark:text-gray-300" />
               <span className="text-sm font-medium">{post.shares_count}</span>
-            </motion.button>
+            </button>
           </div>
         </div>
 
@@ -125,6 +119,6 @@ export function PostCard({ post, user, currentUserId, onLike, onComment, onShare
           </p>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

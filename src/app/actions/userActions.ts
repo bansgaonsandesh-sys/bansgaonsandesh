@@ -190,7 +190,7 @@ export async function adminDeleteUser(userId: string, accessToken: string): Prom
       .from('comments')
       .delete()
       .eq('user_id', userId)
-      .select('*', { count: 'exact', head: true })
+      
     deletedCounts.comments = commentsCount || 0
 
     // Delete likes on user's posts
@@ -204,7 +204,7 @@ export async function adminDeleteUser(userId: string, accessToken: string): Prom
       .from('post_likes')
       .delete()
       .eq('user_id', userId)
-      .select('*', { count: 'exact', head: true })
+      
     deletedCounts.likes = likesCount || 0
 
     // Delete saved posts by user and saves of user's posts
@@ -216,7 +216,7 @@ export async function adminDeleteUser(userId: string, accessToken: string): Prom
       .from('saved_posts')
       .delete()
       .eq('user_id', userId)
-      .select('*', { count: 'exact', head: true })
+      
     deletedCounts.savedPosts = savedCount || 0
 
     // Delete post reports on user's posts and by user
@@ -228,7 +228,7 @@ export async function adminDeleteUser(userId: string, accessToken: string): Prom
       .from('post_reports')
       .delete()
       .eq('reporter_id', userId)
-      .select('*', { count: 'exact', head: true })
+      
     deletedCounts.reports = reportsCount || 0
 
     // Delete follows (both directions)
@@ -236,12 +236,12 @@ export async function adminDeleteUser(userId: string, accessToken: string): Prom
       .from('follows')
       .delete()
       .eq('follower_id', userId)
-      .select('*', { count: 'exact', head: true })
+      
     const { count: followsCount2 } = await adminClient
       .from('follows')
       .delete()
       .eq('following_id', userId)
-      .select('*', { count: 'exact', head: true })
+      
     deletedCounts.follows = (followsCount1 || 0) + (followsCount2 || 0)
 
     // Delete notifications for user
@@ -249,7 +249,7 @@ export async function adminDeleteUser(userId: string, accessToken: string): Prom
       .from('notifications')
       .delete()
       .eq('user_id', userId)
-      .select('*', { count: 'exact', head: true })
+      
     deletedCounts.notifications = notifCount || 0
 
     // Delete FCM tokens

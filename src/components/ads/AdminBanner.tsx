@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Card, Button, Space, Typography } from 'antd'
 import { PhoneOutlined, WhatsAppOutlined, GlobalOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { motion, AnimatePresence } from 'framer-motion'
 
 const { Title, Paragraph } = Typography
 
@@ -25,13 +24,11 @@ interface AdminBannerProps {
     autoSlideInterval?: number // in milliseconds, default 5000
 }
 
-export default function AdminBanner({ ads, onImpression, onClick, autoSlideInterval = 5000 }: AdminBannerProps) {
+function AdminBanner({ ads, onImpression, onClick, autoSlideInterval = 5000 }: AdminBannerProps) {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isVisible, setIsVisible] = useState(false)
     const [impressionTracked, setImpressionTracked] = useState<Set<string>>(new Set())
     const timerRef = useRef<NodeJS.Timeout | null>(null)
-
-    console.log('📢 [AdminBanner] Rendering with ads:', ads.length, ads)
 
     const currentAd = ads[currentIndex]
 
@@ -134,14 +131,7 @@ export default function AdminBanner({ ads, onImpression, onClick, autoSlideInter
                 </div>
 
                 <div className="relative">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={currentAd.id}
-                            initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -50 }}
-                            transition={{ duration: 0.3 }}
-                        >
+                        <div key={currentAd.id}>
                             <div className="relative mb-3">
                                 <img
                                     src={currentAd.image_url}
@@ -193,10 +183,14 @@ export default function AdminBanner({ ads, onImpression, onClick, autoSlideInter
                                     </Button>
                                 )}
                             </Space>
-                        </motion.div>
-                    </AnimatePresence>
+                        </div>
                 </div>
             </Card>
         </div>
     )
 }
+
+export default React.memo(AdminBanner, (prevProps, nextProps) => {
+    return prevProps.ads.length === nextProps.ads.length && 
+           prevProps.ads[0]?.id === nextProps.ads[0]?.id
+})

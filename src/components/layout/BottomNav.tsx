@@ -1,7 +1,6 @@
 'use client';
 
 import { House, Compass, CirclePlus, User } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { NavigationTab } from '@/types/enums';
 import { cn } from '@/lib/utils';
 

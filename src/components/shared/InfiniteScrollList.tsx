@@ -3,7 +3,6 @@
 import React, { useRef, useEffect, useCallback } from 'react'
 import { Spin, Empty, Button, Space } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
-import { motion, AnimatePresence } from 'framer-motion'
 
 interface InfiniteScrollListProps<T> {
   data: T[]
@@ -105,43 +104,27 @@ export default function InfiniteScrollList<T extends { id: string }>({
 
   return (
     <div ref={listRef} className={className}>
-      <AnimatePresence mode="popLayout">
         {data.map((item, index) => (
-          <motion.div
-            key={item?.id || index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2, delay: index * 0.02 }}
-          >
+          <div key={item?.id || index}>
             {renderItem(item, index)}
-          </motion.div>
+          </div>
         ))}
-      </AnimatePresence>
 
       {/* Loading indicator for next page */}
       {isFetchingNextPage && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex justify-center py-6"
-        >
+        <div className="flex justify-center py-6">
           <Space>
             <Spin />
             <span className="text-gray-500 text-sm">Loading more...</span>
           </Space>
-        </motion.div>
+        </div>
       )}
 
       {/* End of list indicator */}
       {!hasNextPage && data.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-6 text-gray-400 text-sm"
-        >
+        <div className="text-center py-6 text-gray-400 text-sm">
           You&apos;ve reached the end 🎉
-        </motion.div>
+        </div>
       )}
 
       {/* Intersection observer target */}

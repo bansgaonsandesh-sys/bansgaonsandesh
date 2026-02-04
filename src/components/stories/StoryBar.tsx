@@ -3,7 +3,6 @@
 import React from 'react'
 import { Avatar, Button } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
-import { motion } from 'framer-motion'
 import { useApp } from '../../lib/providers'
 import { getProxiedImageUrl } from '../../lib/r2-storage'
 
@@ -21,9 +20,8 @@ export default function StoryBar() {
     <div className="bg-white border-b border-gray-100 py-3">
       <div className="flex items-center space-x-3 px-4 overflow-x-auto">
         {/* Add Story */}
-        <motion.div
-          className="flex flex-col items-center space-y-1 min-w-[60px]"
-          whileTap={{ scale: 0.95 }}
+        <div
+          className="flex flex-col items-center space-y-1 min-w-[60px] active:scale-95 transition-transform"
         >
           <div className="relative">
             <Avatar
@@ -42,17 +40,13 @@ export default function StoryBar() {
             />
           </div>
           <span className="text-xs text-gray-600 text-center">Your story</span>
-        </motion.div>
+        </div>
 
         {/* Stories */}
         {stories.map((story, index) => (
-          <motion.div
+          <div
             key={story.id}
-            className="flex flex-col items-center space-y-1 min-w-[60px]"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileTap={{ scale: 0.95 }}
+            className="flex flex-col items-center space-y-1 min-w-[60px] active:scale-95 transition-transform"
           >
             <Avatar
               src={story.avatar}
@@ -68,7 +62,7 @@ export default function StoryBar() {
             <span className="text-xs text-gray-600 text-center truncate w-full">
               {story.user}
             </span>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>
