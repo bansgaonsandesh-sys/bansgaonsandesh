@@ -25,7 +25,12 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
     const [hasTrackedImpression, setHasTrackedImpression] = useState(false)
 
     useEffect(() => {
-        if (ads.length === 0) return
+        if (ads.length === 0) {
+            console.log('[AdminPopup] No ads provided')
+            return
+        }
+
+        console.log('[AdminPopup] Ads available:', ads.length)
 
         const fiveMinutes = 5 * 60 * 1000 // 5 minutes in milliseconds
         let initialTimer: NodeJS.Timeout
@@ -35,6 +40,7 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
             // Select a random ad
             const randomIndex = Math.floor(Math.random() * ads.length)
             const randomAd = ads[randomIndex]
+            console.log('[AdminPopup] Showing popup:', randomAd.title)
             setSelectedAd(randomAd)
             
             setVisible(true)
@@ -44,14 +50,16 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
 
         // Check if this is first visit (no last shown time)
         const lastShownTime = sessionStorage.getItem('popup_last_shown')
+        console.log('[AdminPopup] Last shown time:', lastShownTime)
         
         if (!lastShownTime) {
-            // First visit - show popup after 5 seconds
+            // First visit - show popup after 1 second
+            console.log('[AdminPopup] First visit - showing in 1 second')
             initialTimer = setTimeout(() => {
                 showRandomPopup()
                 // Then continue showing every 5 minutes
                 recurringTimer = setInterval(showRandomPopup, fiveMinutes)
-            }, 5000)
+            }, 1000)
         } else {
             // Not first visit - check time since last shown
             const now = Date.now()
@@ -60,7 +68,7 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
             if (timeSinceLastShown < fiveMinutes) {
                 const remainingTime = fiveMinutes - timeSinceLastShown
                 const remainingMinutes = Math.ceil(remainingTime / 1000 / 60)
-                
+                console.log('[AdminPopup] Waiting', remainingMinutes, 'more minutes')
                 // Show next popup after remaining time
                 initialTimer = setTimeout(() => {
                     showRandomPopup()
@@ -68,12 +76,13 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                     recurringTimer = setInterval(showRandomPopup, fiveMinutes)
                 }, remainingTime)
             } else {
-                // More than 5 minutes passed, show after 5 seconds
+                // More than 5 minutes passed, show after 1 second
+                console.log('[AdminPopup] 5 min passed - showing in 1 second')
                 initialTimer = setTimeout(() => {
                     showRandomPopup()
                     // Then continue showing every 5 minutes
                     recurringTimer = setInterval(showRandomPopup, fiveMinutes)
-                }, 5000)
+                }, 1000)
             }
         }
 
@@ -119,38 +128,66 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
             open={true}
             onCancel={handleClose}
             footer={null}
-            closeIcon={<CloseOutlined />}
-            width="95%"
+            closeIcon={null}
             centered
-            className="popup-ad-modal"
+            className="popup-ad-modal !p-0"
             maskClosable={true}
             keyboard={true}
             destroyOnClose={true}
-            getContainer={false}
-            style={{ position: 'fixed', zIndex: 1000, maxWidth: 600 }}
+            styles={{
+                content: {
+                    padding: 0,
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    width: 'calc(100vw - 32px)',
+                    maxWidth: 400,
+                },
+                mask: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                },
+                header: {
+                    display: 'none',
+                },
+            }}
+            closable={false}
         >
-            <div>
-                <div className="text-center">
-                    <img
-                        src={selectedAd.image_url}
-                        alt={selectedAd.title}
-                        className="w-full h-auto max-h-[50vh] object-contain rounded-lg mb-4"
-                    />
+            <div className="relative">
+                {/* Close button overlay */}
+                <button
+                    onClick={handleClose}
+                    className="absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white"
+                >
+                    <CloseOutlined />
+                </button>
 
-                    <h2 className="text-lg sm:text-2xl font-bold mb-2 sm:mb-3">{selectedAd.title}</h2>
+                {/* Image - responsive */}
+                <img
+                    src={selectedAd.image_url}
+                    alt={selectedAd.title}
+                    className="w-full h-auto max-h-[40vh] object-contain"
+                />
+
+                {/* Content */}
+                <div className="p-4">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2 text-center">
+                        {selectedAd.title}
+                    </h2>
 
                     {selectedAd.description && (
-                        <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">{selectedAd.description}</p>
+                        <p className="text-gray-600 text-sm mb-4 text-center">
+                            {selectedAd.description}
+                        </p>
                     )}
 
-                    <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mb-4">
+                    {/* Action Buttons - Stack vertically on mobile */}
+                    <div className="flex flex-col gap-2">
                         {selectedAd.contact_phone && (
                             <Button
                                 type="primary"
-                                size="middle"
+                                size="large"
                                 icon={<PhoneOutlined />}
                                 onClick={() => handleActionClick('phone')}
-                                className="text-sm sm:text-base"
+                                block
                             >
                                 Call Now
                             </Button>
@@ -158,20 +195,21 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                         {selectedAd.contact_whatsapp && (
                             <Button
                                 type="primary"
-                                size="middle"
+                                size="large"
                                 icon={<WhatsAppOutlined />}
                                 onClick={() => handleActionClick('whatsapp')}
-                                className="bg-green-600 hover:bg-green-700 text-sm sm:text-base"
+                                className="!bg-green-600 hover:!bg-green-700"
+                                block
                             >
                                 WhatsApp
                             </Button>
                         )}
                         {selectedAd.contact_website && (
                             <Button
-                                size="middle"
+                                size="large"
                                 icon={<GlobalOutlined />}
                                 onClick={() => handleActionClick('website')}
-                                className="text-sm sm:text-base"
+                                block
                             >
                                 Visit Website
                             </Button>
@@ -179,23 +217,22 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                         {selectedAd.redirect_url && !selectedAd.contact_website && (
                             <Button
                                 type="default"
-                                size="middle"
+                                size="large"
                                 onClick={() => handleActionClick('redirect')}
-                                className="text-sm sm:text-base"
+                                block
                             >
                                 Learn More
                             </Button>
                         )}
-                    </div>
 
-                    {/* Bottom Close Button for Mobile */}
-                    <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200">
+                        {/* Close Button */}
                         <Button
                             type="default"
-                            size="middle"
+                            size="large"
                             icon={<CloseOutlined />}
                             onClick={handleClose}
-                            className="w-full"
+                            block
+                            className="mt-2"
                         >
                             Close
                         </Button>

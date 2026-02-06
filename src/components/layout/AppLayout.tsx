@@ -66,6 +66,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       // Popups
       try {
         const popupData = await fetchActivePopups()
+        console.log('[AppLayout] Fetched popups:', popupData.length, popupData)
         setPopups(popupData)
       } catch (error) {
         console.error('Failed to fetch popups:', error)
