@@ -120,36 +120,37 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
             onCancel={handleClose}
             footer={null}
             closeIcon={<CloseOutlined />}
-            width={600}
+            width="95%"
             centered
             className="popup-ad-modal"
             maskClosable={true}
             keyboard={true}
             destroyOnClose={true}
             getContainer={false}
-            style={{ position: 'fixed', zIndex: 1000 }}
+            style={{ position: 'fixed', zIndex: 1000, maxWidth: 600 }}
         >
             <div>
                 <div className="text-center">
                     <img
                         src={selectedAd.image_url}
                         alt={selectedAd.title}
-                        className="w-full h-auto max-h-96 object-cover rounded-lg mb-4"
+                        className="w-full h-auto max-h-[50vh] object-contain rounded-lg mb-4"
                     />
 
-                    <h2 className="text-2xl font-bold mb-3">{selectedAd.title}</h2>
+                    <h2 className="text-lg sm:text-2xl font-bold mb-2 sm:mb-3">{selectedAd.title}</h2>
 
                     {selectedAd.description && (
-                        <p className="text-gray-600 mb-6">{selectedAd.description}</p>
+                        <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">{selectedAd.description}</p>
                     )}
 
-                    <div className="flex flex-wrap gap-3 justify-center mb-4">
+                    <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mb-4">
                         {selectedAd.contact_phone && (
                             <Button
                                 type="primary"
-                                size="large"
+                                size="middle"
                                 icon={<PhoneOutlined />}
                                 onClick={() => handleActionClick('phone')}
+                                className="text-sm sm:text-base"
                             >
                                 Call Now
                             </Button>
@@ -157,19 +158,20 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                         {selectedAd.contact_whatsapp && (
                             <Button
                                 type="primary"
-                                size="large"
+                                size="middle"
                                 icon={<WhatsAppOutlined />}
                                 onClick={() => handleActionClick('whatsapp')}
-                                className="bg-green-600 hover:bg-green-700"
+                                className="bg-green-600 hover:bg-green-700 text-sm sm:text-base"
                             >
                                 WhatsApp
                             </Button>
                         )}
                         {selectedAd.contact_website && (
                             <Button
-                                size="large"
+                                size="middle"
                                 icon={<GlobalOutlined />}
                                 onClick={() => handleActionClick('website')}
+                                className="text-sm sm:text-base"
                             >
                                 Visit Website
                             </Button>
@@ -177,8 +179,9 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                         {selectedAd.redirect_url && !selectedAd.contact_website && (
                             <Button
                                 type="default"
-                                size="large"
+                                size="middle"
                                 onClick={() => handleActionClick('redirect')}
+                                className="text-sm sm:text-base"
                             >
                                 Learn More
                             </Button>
@@ -186,13 +189,13 @@ export default function AdminPopup({ ads, onImpression, onClick }: AdminPopupPro
                     </div>
 
                     {/* Bottom Close Button for Mobile */}
-                    <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200">
                         <Button
                             type="default"
-                            size="large"
+                            size="middle"
                             icon={<CloseOutlined />}
                             onClick={handleClose}
-                            className="w-full md:w-auto"
+                            className="w-full"
                         >
                             Close
                         </Button>
