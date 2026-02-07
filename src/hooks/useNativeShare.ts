@@ -104,17 +104,15 @@ export const useNativeShare = (options: UseNativeShareOptions = {}) => {
     }) => {
       const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/post/${postData.id}`;
 
-      // Create short snippet (max 100 characters)
+      // Create short snippet (max 100 characters) - only use description, not title
       const shortDescription = postData.description 
         ? postData.description.substring(0, 100) + (postData.description.length > 100 ? '...' : '')
-        : postData.title;
+        : '';
 
-      // Format share message with app download CTA
-      const shareMessage = `${postData.title}\n\n${shortDescription}\n\n📰 Read the full story on Bansgaon Sandesh\n🔗 ${url}\n\n📱 Download our app:\nhttps://play.google.com/store/apps/details?id=com.bansgaonsandesh.app`;
-
+      // Pass to shareNatively which will construct the final message
+      // Don't construct message here to avoid duplicate title
       return share({
         title: postData.title,
-        text: shareMessage,
         url,
         imageUrl: postData.imageUrl,
         description: shortDescription,

@@ -66,18 +66,17 @@ export const shareNatively = async (data: NativeShareData): Promise<boolean> => 
 
   const { isNativeApp } = detectNativeApp();
 
-  // Create short snippet for sharing (max 150 chars)
-  const shortText = data.text 
-    ? data.text.substring(0, 150) + (data.text.length > 150 ? '...' : '')
-    : data.description?.substring(0, 150) + (data.description && data.description.length > 150 ? '...' : '') || '';
+  // Get description text (without title to avoid duplication)
+  const descriptionText = data.description?.substring(0, 150) || '';
+  const descriptionPart = descriptionText ? `\n\n${descriptionText}${data.description && data.description.length > 150 ? '...' : ''}` : '';
 
-  // Format share message with app download CTA
-  const shareMessage = `${data.title}\n\n${shortText}\n\n📰 Read full news on Bansgaon Sandesh\n🔗 ${data.url}\n\n📱 Download our app:\nhttps://play.google.com/store/apps/details?id=com.bansgaonsandesh.app`;
+  // Format share message with app download CTA - title only appears once at the start
+  const shareMessage = `${data.title}${descriptionPart}\n\n📰 Read full news on Bansgaon Sandesh\n🔗 ${data.url}\n\n📱 Download our app:\nhttps://play.google.com/store/apps/details?id=com.bansgaonsandesh.app`;
 
   const shareData = {
     ...data,
     text: shareMessage,
-    description: shortText,
+    description: descriptionText,
   };
 
   // Try native bridge first
